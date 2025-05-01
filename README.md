@@ -35,10 +35,10 @@ services:
     container_name: api_rest_mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: r00t_P@ssw0rd!
+      MYSQL_ROOT_PASSWORD: {Sua_senha_root}
       MYSQL_DATABASE: api_rest_db
       MYSQL_USER: api_user
-      MYSQL_PASSWORD: Secure_P@ss123!
+      MYSQL_PASSWORD: {Sua_senha_usuario}
     ports:
       - "3306:3306"
     volumes:
