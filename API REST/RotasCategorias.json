@@ -1,0 +1,200 @@
+{
+    "info": {
+      "name": "Categorias API",
+      "description": "Collection para testar a API REST de Categorias",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Listar todas as categorias",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "http://localhost:8080/api/categorias",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "categorias"
+            ]
+          },
+          "description": "Retorna uma lista de todas as categorias cadastradas"
+        },
+        "response": []
+      },
+      {
+        "name": "Obter categoria por ID",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "http://localhost:8080/api/categorias/1",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "categorias",
+              "1"
+            ]
+          },
+          "description": "Busca uma categoria pelo ID"
+        },
+        "response": []
+      },
+      {
+        "name": "Criar nova categoria",
+        "request": {
+          "method": "POST",
+          "url": {
+            "raw": "http://localhost:8080/api/categorias",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "categorias"
+            ]
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"nome\": \"Eletrônicos\",\n    \"descricao\": \"Produtos eletrônicos em geral\"\n}"
+          },
+          "description": "Cadastra uma nova categoria"
+        },
+        "response": []
+      },
+      {
+        "name": "Atualizar categoria",
+        "request": {
+          "method": "PUT",
+          "url": {
+            "raw": "http://localhost:8080/api/categorias/1",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "categorias",
+              "1"
+            ]
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"nome\": \"Eletrônicos Atualizados\",\n    \"descricao\": \"Categoria de produtos eletrônicos atualizada\"\n}"
+          },
+          "description": "Atualiza uma categoria existente pelo ID"
+        },
+        "response": []
+      },
+      {
+        "name": "Excluir categoria",
+        "request": {
+          "method": "DELETE",
+          "url": {
+            "raw": "http://localhost:8080/api/categorias/1",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "categorias",
+              "1"
+            ]
+          },
+          "description": "Remove uma categoria pelo ID"
+        },
+        "response": []
+      },
+      {
+        "name": "Listar produtos da categoria",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "http://localhost:8080/api/categorias/1/produtos",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "categorias",
+              "1",
+              "produtos"
+            ]
+          },
+          "description": "Retorna a lista de IDs dos produtos associados à categoria"
+        },
+        "response": []
+      },
+      {
+        "name": "Adicionar produto à categoria",
+        "request": {
+          "method": "POST",
+          "url": {
+            "raw": "http://localhost:8080/api/categorias/1/produtos/1",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "categorias",
+              "1",
+              "produtos",
+              "1"
+            ]
+          },
+          "description": "Adiciona um produto existente a uma categoria"
+        },
+        "response": []
+      },
+      {
+        "name": "Remover produto da categoria",
+        "request": {
+          "method": "DELETE",
+          "url": {
+            "raw": "http://localhost:8080/api/categorias/1/produtos/1",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "categorias",
+              "1",
+              "produtos",
+              "1"
+            ]
+          },
+          "description": "Remove um produto de uma categoria"
+        },
+        "response": []
+      }
+    ]
+  }

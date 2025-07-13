@@ -1,0 +1,132 @@
+{
+    "info": {
+      "name": "Produtos API",
+      "description": "Collection para testar a API REST de Produtos",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Listar todos os produtos",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "http://localhost:8080/api/produtos",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "produtos"
+            ]
+          },
+          "description": "Retorna uma lista de todos os produtos cadastrados"
+        },
+        "response": []
+      },
+      {
+        "name": "Obter produto por ID",
+        "request": {
+          "method": "GET",
+          "url": {
+            "raw": "http://localhost:8080/api/produtos/1",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "produtos",
+              "1"
+            ]
+          },
+          "description": "Busca um produto pelo ID"
+        },
+        "response": []
+      },
+      {
+        "name": "Criar novo produto",
+        "request": {
+          "method": "POST",
+          "url": {
+            "raw": "http://localhost:8080/api/produtos",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "produtos"
+            ]
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"nome\": \"Produto Teste\",\n    \"descricao\": \"Descrição do produto teste\",\n    \"preco\": 99.90,\n    \"quantidade\": 10\n}"
+          },
+          "description": "Cadastra um novo produto"
+        },
+        "response": []
+      },
+      {
+        "name": "Atualizar produto",
+        "request": {
+          "method": "PUT",
+          "url": {
+            "raw": "http://localhost:8080/api/produtos/1",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "produtos",
+              "1"
+            ]
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"nome\": \"Produto Atualizado\",\n    \"descricao\": \"Descrição do produto atualizada\",\n    \"preco\": 199.90,\n    \"quantidade\": 20\n}"
+          },
+          "description": "Atualiza um produto existente pelo ID"
+        },
+        "response": []
+      },
+      {
+        "name": "Excluir produto",
+        "request": {
+          "method": "DELETE",
+          "url": {
+            "raw": "http://localhost:8080/api/produtos/1",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8080",
+            "path": [
+              "api",
+              "produtos",
+              "1"
+            ]
+          },
+          "description": "Remove um produto pelo ID"
+        },
+        "response": []
+      }
+    ]
+  }
