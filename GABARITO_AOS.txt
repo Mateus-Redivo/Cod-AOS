@@ -1,0 +1,143 @@
+GABARITO - LISTA AOS (ARQUITETURA ORIENTADA A SERVIÇOS)
+
+EXERCÍCIO 1 - CAMADAS DE ARQUITETURA
+a) Controller: Recebe requisições, valida entrada e retorna respostas
+b) Service: Contém lógica de negócio e orquestra operações
+c) Repository: Responsável pelo acesso e persistência de dados
+d) Entity/Domain: Representa as entidades do domínio da aplicação
+
+EXERCÍCIO 2 - ANÁLISE DE AFIRMATIVAS
+( F ) A camada de apresentação deve conter regras de negócio complexas
+( F ) É uma boa prática que a camada de serviço acesse diretamente o banco de dados
+( V ) A camada de repositório deve ser responsável apenas pelo acesso a dados
+( F ) O controller deve chamar diretamente métodos do repositório
+( V ) A camada de serviço orquestra a lógica de negócio da aplicação
+
+EXERCÍCIO 3 - BOAS PRÁTICAS OPENAPI/SWAGGER
+1. Documentar todos os endpoints com descrições claras
+2. Incluir exemplos de request/response
+3. Definir schemas para objetos complexos
+4. Especificar códigos de status e possíveis erros
+5. Versionar adequadamente a API
+
+EXERCÍCIO 4 - CONCEITOS FUNDAMENTAIS
+a) Coesão:
+   Definição: Grau em que elementos de um módulo trabalham juntos
+   Exemplo: Classe UsuarioService contendo apenas métodos relacionados a usuários
+
+b) Acoplamento:
+   Definição: Grau de dependência entre módulos
+   Exemplo: Controller dependendo de interface Service ao invés de implementação concreta
+
+c) Encapsulamento:
+   Definição: Ocultação de detalhes internos, expondo apenas interface necessária
+   Exemplo: Atributos privados com métodos getters/setters
+
+d) Abstração:
+   Definição: Simplificação focando apenas nos aspectos essenciais
+   Exemplo: Interface UsuarioRepository ocultando detalhes de implementação
+
+EXERCÍCIO 5 - CÓDIGO COM OPTIONAL
+public String buscarNomeUsuario(Long id) {
+    return usuarioRepository.findById(id)
+        .map(Usuario::getNome)
+        .orElse("Usuário não encontrado");
+}
+
+EXERCÍCIO 6 - JPA E GERAÇÃO DE IDs
+a) GenerationType.IDENTITY: Delega geração de ID para o banco (auto_increment)
+
+b) Limitações:
+1. Reduz performance em batch inserts
+2. Pode causar problemas de concorrência em ambientes multi-threaded
+
+c) Alternativa: GenerationType.SEQUENCE ou UUID
+
+EXERCÍCIO 7 - BENEFÍCIOS DA SEPARAÇÃO EM CAMADAS
+1. Manutenibilidade - mudanças isoladas por responsabilidade
+2. Testabilidade - facilita testes unitários
+3. Reutilização - camadas podem ser reutilizadas
+4. Flexibilidade - substituição de implementações
+5. Organização - código mais estruturado e legível
+
+EXERCÍCIO 8 - DTOs
+a) DTOs (Data Transfer Objects): Objetos para transferir dados entre camadas
+
+b) Problemas ao expor entidades:
+- Exposição de dados internos
+- Acoplamento entre camadas
+- Problemas de serialização
+- Vazamento de informações sensíveis
+
+c) Ferramentas de mapeamento:
+1. MapStruct
+2. ModelMapper
+
+EXERCÍCIO 9 - TESTES E MOCKS
+a) Mocks: Objetos simulados que imitam comportamento de dependências reais. Importante para isolar unidade testada.
+
+b) Interfaces facilitam criação de mocks e desacoplamento para testes
+
+c) Exemplo de teste:
+@Test
+void deveBuscarUsuario() {
+    // Given
+    when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+    
+    // When
+    String nome = usuarioService.buscarNome(1L);
+    
+    // Then
+    assertEquals("João", nome);
+}
+
+EXERCÍCIO 10 - PERSISTÊNCIA
+a) Paginação:
+   Quando usar: Grandes volumes de dados
+   Como implementar: Pageable no Spring Data
+
+b) Batch Insert:
+   Vantagens: Reduz roundtrips ao banco
+   Quando usar: Inserção de muitos registros
+
+c) Transação:
+   Propriedades ACID: Atomicidade, Consistência, Isolamento, Durabilidade
+   Exemplo: Transferência bancária (débito + crédito)
+
+EXERCÍCIO 11 - SISTEMA E-COMMERCE
+a) Cadastro de produto:
+   - Controller: Valida dados de entrada, chama service
+   - Service: Aplica regras de negócio, valida produto
+   - Repository: Persiste produto no banco
+
+b) Busca com filtros:
+   - Controller: Recebe parâmetros de busca e paginação
+   - Service: Aplica filtros de negócio
+   - Repository: Executa query com critérios e paginação
+
+EXERCÍCIO 12 - PROBLEMAS NO CÓDIGO
+Problemas identificados:
+1. Controller acessa diretamente repository (viola camadas)
+2. Lógica de validação no controller (deveria estar no service)
+3. Retorna entidade diretamente (deveria usar DTO)
+
+Como corrigir:
+- Criar camada service
+- Mover validações para service
+- Usar DTOs para request/response
+
+EXERCÍCIO 13 - PADRÕES
+a) Repository Pattern: Abstrai acesso a dados, promove baixo acoplamento
+
+b) Service Layer Pattern: Centraliza lógica de negócio, orquestra operações
+
+c) DTO Pattern: Transfere dados entre camadas sem expor estruturas internas
+
+EXERCÍCIO 14 - IMPORTÂNCIA DA ARQUITETURA
+1. Baixo acoplamento facilita manutenção e evolução do sistema
+
+2. Separação em camadas permite mudanças isoladas sem impacto geral
+
+3. Falta de separação gera código monolítico, difícil de manter e testar
+
+4. Misturar responsabilidades dificulta localização de bugs e implementação de novas funcionalidades
