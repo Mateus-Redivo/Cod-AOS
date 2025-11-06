@@ -1,0 +1,340 @@
+Exercício 1: Identifique a camada correta
+Classifique cada responsabilidade na camada adequada (Controller, Service, Repository):
+a) Validar se um CPF tem formato válido
+b) Executar query SQL para buscar cliente no banco
+c) Calcular desconto baseado em regras de negócio
+d) Receber requisição HTTP e retornar ResponseEntity
+e) Converter DTO em Entity
+f) Aplicar lógica de cálculo de frete
+
+Exercício 2: Refatoração de Controller
+Refatore o código abaixo aplicando separação de responsabilidades:
+
+@RestController
+@RequestMapping("/produtos")
+public class ProdutoController {
+    @Autowired
+    private ProdutoRepository repository;
+    
+    @PostMapping
+    public ResponseEntity<Produto> criar(@RequestBody Produto produto) {
+        if (produto.getPreco() < 0) {
+            throw new IllegalArgumentException("Preço inválido");
+        }
+        double precoComImposto = produto.getPreco() * 1.15;
+        produto.setPrecoFinal(precoComImposto);
+        return ResponseEntity.ok(repository.save(produto));
+    }
+}
+
+Exercício 3: Identificação de violações
+Liste todas as violações arquiteturais no código:
+
+@Repository
+public class PedidoRepository {
+    public Pedido salvar(Pedido pedido) {
+        if (pedido.getTotal() > 10000) {
+            throw new BusinessException("Pedido requer aprovação gerencial");
+        }
+        System.out.println("Salvando pedido: " + pedido.getId());
+        return jdbcTemplate.update(...);
+    }
+}
+
+
+TEMA 2: INJEÇÃO DE DEPENDÊNCIAS E TESTABILIDADE
+------------------------------------------------
+
+Exercício 4: Corrija o problema de testabilidade
+Refatore a classe abaixo para permitir testes unitários adequados:
+
+public class NotificacaoService {
+    private EmailService emailService = new EmailService();
+    private SmsService smsService = new SmsService();
+    
+    public void notificar(Usuario usuario, String mensagem) {
+        emailService.enviar(usuario.getEmail(), mensagem);
+        smsService.enviar(usuario.getTelefone(), mensagem);
+    }
+}
+
+Exercício 5: Escreva um teste unitário
+Crie um teste unitário para a classe abaixo usando Mockito:
+
+public class PedidoService {
+    private PedidoRepository repository;
+    private EmailService emailService;
+    
+    public Pedido processar(Pedido pedido) {
+        Pedido salvo = repository.save(pedido);
+        emailService.enviar("Pedido processado: " + salvo.getId());
+        return salvo;
+    }
+}
+
+Exercício 6: Conceitual sobre DI
+Explique as diferenças entre:
+a) @Autowired por campo
+b) @Autowired por construtor
+c) @Autowired por setter
+Qual é considerada a melhor prática e por quê?
+
+
+TEMA 3: JPA E PERFORMANCE
+--------------------------
+
+Exercício 7: Problema N+1
+Identifique e corrija o problema de performance:
+
+@Entity
+public class Pedido {
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<ItemPedido> itens;
+}
+
+// No Service:
+public List<PedidoDTO> listarPedidos() {
+    List<Pedido> pedidos = repository.findAll();
+    return pedidos.stream()
+        .map(p -> new PedidoDTO(p.getId(), p.getItens().size()))
+        .collect(Collectors.toList());
+}
+
+Exercício 8: FetchType
+Explique quando usar EAGER vs LAZY. Qual é a melhor prática padrão?
+
+Exercício 9: GenerationType
+Por que GenerationType.IDENTITY pode causar problemas de performance?
+Qual alternativa seria melhor para cenários de alta carga?
+
+Exercício 10: Paginação eficiente
+Corrija o código para implementar paginação no banco de dados:
+
+public List<Produto> buscarProdutos(int page, int size) {
+    List<Produto> todos = repository.findAll();
+    return todos.subList(page * size, (page + 1) * size);
+}
+
+
+TEMA 4: OPTIONAL E PROGRAMAÇÃO FUNCIONAL
+-----------------------------------------
+
+Exercício 11: Refatoração com Optional
+Refatore usando métodos funcionais do Optional (map, orElse, orElseThrow):
+
+public String getNomeCliente(Long id) {
+    Optional<Cliente> cliente = repository.findById(id);
+    if (cliente.isPresent()) {
+        if (cliente.get().getNome() != null) {
+            return cliente.get().getNome();
+        } else {
+            return "Nome não disponível";
+        }
+    } else {
+        throw new RuntimeException("Cliente não encontrado");
+    }
+}
+
+Exercício 12: Uso correto de Optional
+Indique o que está errado em cada uso de Optional:
+
+a) Optional<String> nome = Optional.of(cliente.getNome()); // getNome() pode ser null
+b) if (optional.get() != null) { ... }
+c) optional.isPresent() ? optional.get() : "default"
+d) return Optional.of(null);
+
+Exercício 13: Streams e Optional
+Complete o código usando streams e optional:
+
+// Encontrar o produto mais caro de uma categoria específica
+public Optional<Produto> produtoMaisCaroDaCategoria(String categoria) {
+    List<Produto> produtos = repository.findAll();
+    // Complete aqui
+}
+
+
+TEMA 5: DTOs E SEGURANÇA
+------------------------
+
+Exercício 14: Identificar dados sensíveis
+Liste quais campos NÃO deveriam ser expostos pela API:
+
+@Entity
+public class Usuario {
+    private Long id;
+    private String nome;
+    private String email;
+    private String senha;
+    private String cpf;
+    private String tokenRecuperacao;
+    private LocalDateTime ultimoLogin;
+    private String enderecoIP;
+}
+
+Exercício 15: Criar DTOs apropriados
+Crie DTOs de Request e Response para o endpoint:
+
+@PostMapping("/usuarios")
+public ResponseEntity<?> criar(@RequestBody ??? usuarioRequest) {
+    // ...
+    return ResponseEntity.ok(???);
+}
+
+Exercício 16: Conversão Entity-DTO
+Implemente os métodos de conversão:
+
+public class UsuarioMapper {
+    public static Usuario toEntity(UsuarioRequestDTO dto) {
+        // Implemente
+    }
+    
+    public static UsuarioResponseDTO toDTO(Usuario entity) {
+        // Implemente (sem expor senha)
+    }
+}
+
+
+TEMA 6: VALIDAÇÕES E TRATAMENTO DE ERROS
+-----------------------------------------
+
+Exercício 17: Onde validar?
+Para cada validação, indique em qual camada deve ser implementada:
+
+a) CPF tem 11 dígitos
+b) Email tem formato válido
+c) Cliente tem mais de 18 anos
+d) Saldo suficiente para realizar transação
+e) Produto existe no estoque
+f) Formato do JSON está correto
+
+Exercício 18: Validação com Bean Validation
+Adicione anotações de validação apropriadas:
+
+public class ProdutoRequestDTO {
+    private String nome;
+    private BigDecimal preco;
+    private Integer estoque;
+    private String categoria;
+}
+
+Exercício 19: Exception Handler
+Implemente um @ControllerAdvice para tratar:
+- MethodArgumentNotValidException
+- EntityNotFoundException
+- BusinessException
+- Exception genérica
+
+
+TEMA 7: BOAS PRÁTICAS DE CÓDIGO
+--------------------------------
+
+Exercício 20: Code Review
+Liste todos os problemas no código:
+
+@RestController
+@RequestMapping("/api/vendas")
+public class VendaController {
+    @Autowired
+    VendaRepository repository;
+    
+    @GetMapping("/{id}")
+    public Venda get(@PathVariable Long id) {
+        return repository.findById(id).get();
+    }
+    
+    @PostMapping
+    public Venda criar(@RequestBody Venda venda) {
+        venda.setData(LocalDateTime.now());
+        double total = 0;
+        for (ItemVenda item : venda.getItens()) {
+            total += item.getPreco() * item.getQtd();
+        }
+        venda.setTotal(total);
+        return repository.save(venda);
+    }
+}
+
+Exercício 21: Refatoração completa
+Refatore o código acima seguindo todas as boas práticas aprendidas:
+- Separação de camadas
+- Uso de DTOs
+- Validações adequadas
+- Tratamento de erros
+- Injeção de dependências por construtor
+- Uso de Optional
+
+
+TEMA 8: TESTES UNITÁRIOS
+-------------------------
+
+Exercício 22: Configurar teste com Mockito
+Complete o teste:
+
+public class ProdutoServiceTest {
+    // Declare os mocks necessários
+    
+    @BeforeEach
+    public void setup() {
+        // Configure os mocks
+    }
+    
+    @Test
+    public void deveCriarProdutoComSucesso() {
+        // Implemente o teste
+    }
+}
+
+Exercício 23: Testes de exceções
+Escreva testes para verificar se exceções são lançadas corretamente:
+
+public class ValidadorService {
+    public void validarIdade(int idade) {
+        if (idade < 18) {
+            throw new ValidationException("Menor de idade");
+        }
+    }
+}
+
+
+QUESTÕES CONCEITUAIS
+--------------------
+
+Exercício 24: Explique com suas palavras
+a) O que é acoplamento e como reduzir?
+b) Por que Controllers não devem ter lógica de negócio?
+c) Qual a diferença entre Entity e DTO?
+d) O que é uma BusinessException?
+e) Por que evitar métodos get() direto no Optional?
+
+Exercício 25: Verdadeiro ou Falso
+( ) Repository pode conter logs de auditoria
+( ) Service deve validar regras de negócio
+( ) Controller pode acessar Repository diretamente em casos simples
+( ) FetchType.EAGER deve ser usado por padrão
+( ) Optional.of(null) é válido
+( ) DTOs protegem contra exposição de dados sensíveis
+( ) Instanciar dependências com 'new' dificulta testes
+( ) GenerationType.SEQUENCE é melhor que IDENTITY para batch inserts
+
+Exercício 26: Cenários práticos
+Como você implementaria:
+a) Um sistema de auditoria que loga todas as operações?
+b) Cache de produtos mais acessados?
+c) Validação customizada de CNPJ?
+d) Paginação com filtros dinâmicos?
+e) Notificação assíncrona após criar pedido?
+
+
+Exercício 27: Implementação completa
+Implemente um CRUD completo de "Livro" seguindo TODAS as boas práticas:
+
+Requisitos:
+- Entity Livro (id, titulo, autor, isbn, preco, estoque)
+- Repository, Service, Controller
+- DTOs apropriados
+- Validações (ISBN deve ter 13 dígitos, preço > 0, etc)
+- Tratamento de erros
+- Testes unitários do Service
+- Injeção de dependências por construtor
+- Uso correto de Optional
+- Paginação no endpoint de listagem
