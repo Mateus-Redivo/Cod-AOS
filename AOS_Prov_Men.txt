@@ -1,0 +1,132 @@
+1. Sobre as responsabilidades das camadas em uma arquitetura orientada a serviços, analise as afirmativas a seguir:
+
+(    ) A camada de apresentação é responsável por receber as requisições e retornar as respostas ao cliente.
+(    ) A camada de serviço concentra as regras de negócio e a lógica de orquestração entre diferentes componentes.
+(    ) A camada de repositório deve conter apenas a lógica de acesso a dados e persistência.
+(    ) É uma boa prática que a camada de serviço acesse diretamente o banco de dados, evitando o uso de repositórios para reduzir acoplamento.
+
+Assinale a alternativa que apresenta a sequência correta:
+
+A) V – F – V – V
+B) V – V – V – F
+C) F – V – V – F
+D) V – V – F – F
+
+
+
+2. Associe corretamente cada camada de uma aplicação orientada a serviços à sua principal responsabilidade.
+
+Coluna A – Camada             | Coluna B – Responsabilidade
+1. Apresentação (Controller)   | ( ) Recebe requisições externas e envia respostas ao cliente
+2. Serviço (Service)           | ( ) Implementa as regras de negócio e coordena operações
+3. Repositório (Repository)    | ( ) Contém a lógica de acesso e manipulação de dados
+4. Modelo (Entity/Domain)      | ( ) Representa os dados e entidades do sistema
+
+Sequência correta:
+
+A) 1-B, 2-A, 3-C, 4-D
+B) 1-A, 2-C, 3-D, 4-B
+    C) 1-A, 2-B, 3-C, 4-D
+D) 1-C, 2-B, 3-A, 4-D
+
+
+
+3.Em relação à documentação de APIs utilizando ferramentas como OpenAPI (Swagger), qual das alternativas representa uma boa prática para garantir a clareza e a manutenibilidade a longo prazo?
+
+    A) Manter o versionamento claro da API e fornecer exemplos de requisição e resposta
+B) Inserir toda a documentação diretamente no código de negócio, dentro dos métodos de serviço
+C) Documentar apenas os endpoints principais, evitando detalhes para simplificar o arquivo
+D) Centralizar toda a documentação fora do código, sem relação com o comportamento real da API
+
+
+
+4. Associe corretamente cada conceito de design de software à sua definição.
+
+Coluna A – Conceito       | Coluna B – Definição
+1. Coesão                 | ( ) Grau em que um módulo depende de outro para funcionar
+2. Acoplamento            | ( ) Capacidade de esconder os detalhes internos de uma classe ou módulo
+3. Abstração              | ( ) Grau em que as responsabilidades de um módulo estão relacionadas e focadas em um único propósito
+4. Encapsulamento         | ( ) Processo de representar características essenciais, ocultando detalhes de implementação desnecessários
+
+Sequência correta:
+
+A) 1-C, 2-B, 3-A, 4-D
+B) 1-C, 3-D, 2-B, 4-A 
+C) 1-D, 2-A, 3-C, 4-B
+    D) 1-C, 3-D, 2-A, 4-B
+
+
+
+5.Qual é a principal vantagem de utilizar o tipo Optional em Java em vez de verificações tradicionais de null?
+
+A) Elimina a necessidade de exceções personalizadas para valores nulos
+B) Melhora significativamente o desempenho ao evitar instruções condicionais
+    C) Facilita o tratamento de valores ausentes sem necessidade de verificações explícitas
+D) Garante compatibilidade automática com APIs legadas que utilizam null
+
+
+
+6.Considerando o uso da estratégia GenerationType.IDENTITY em entidades JPA, qual é sua principal limitação em cenários de alta concorrência?
+
+A) Não é compatível com bancos NoSQL
+    B) Impede o uso eficiente de inserções em lote (batch inserts)
+C) Gera IDs sequenciais que podem causar gargalos de desempenho
+D) Não permite transações distribuídas
+
+
+
+7.A separação entre camadas, especialmente ao isolar as regras de negócio na camada de serviço, traz diversos benefícios à arquitetura do sistema. Qual das alternativas representa corretamente um desses benefícios?
+
+A) Reduz o número de classes e facilita a implementação direta das regras de negócio no controller
+B) Aumenta o acoplamento entre as camadas, tornando o sistema mais simples de compreender
+    C) Facilita a manutenção, a reutilização de código e a testabilidade da aplicação
+D) Permite que a camada de apresentação controle diretamente a persistência dos dados
+
+
+
+8. Sobre o uso de DTOs (Data Transfer Objects) e o mapeamento de dados entre camadas, analise as afirmativas a seguir:
+
+(    ) Os DTOs servem para transferir dados entre camadas sem expor diretamente as entidades do domínio.
+(    ) Utilizar as entidades de banco de dados diretamente na camada de apresentação é uma boa prática para reduzir código.
+(    ) O mapeamento entre DTOs e entidades contribui para a segurança e desacoplamento da aplicação.
+(    ) Ferramentas de mapeamento automático, como MapStruct, podem auxiliar na conversão entre objetos de forma padronizada.
+
+Sequência correta:
+
+    A) V – F – V – V
+B) V – V – F – F
+C) F – V – V – F
+D) V – F – F – V
+
+
+
+9. Sobre testes unitários e o uso de mocks em aplicações multicamadas, analise as afirmativas a seguir:
+
+(    ) Utilizar dependências concretas nas classes de serviço facilita a criação de testes unitários.
+(    ) Mocks permitem simular o comportamento de dependências sem acessar o banco de dados ou serviços externos.
+(    ) A falta de interfaces ou abstrações dificulta o desacoplamento e a testabilidade das classes de serviço.
+(    ) Testes unitários não precisam considerar a lógica de negócio, apenas a integração com o banco de dados.
+
+Sequência correta:
+
+A) V – F – V – F
+B) V – V – F – F
+    C) F – V – V – F
+D) F – V – F – V
+
+
+
+10. Associe cada conceito de persistência e consulta em bancos de dados à sua descrição correta.
+
+Coluna A – Conceito     | Coluna B – Descrição
+1. Paginação            | ( ) Recupera apenas um subconjunto dos registros, limitando a quantidade de dados por consulta
+2. Ordenação            | ( ) Organiza os resultados de uma consulta com base em um ou mais campos
+3. Batch Insert         | ( ) Insere múltiplos registros em uma única operação para melhorar desempenho
+4. Transação            | ( ) Conjunto de operações que devem ser executadas de forma atômica, garantindo consistência dos dados
+
+Sequência correta:
+
+    A) 1-A, 2-B, 3-C, 4-D
+B) 1-A, 2-B, 3-D, 4-C
+C) 1-B, 2-C, 3-A, 4-D
+D) 1-D, 2-C, 3-B, 4-A

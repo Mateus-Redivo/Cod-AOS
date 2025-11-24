@@ -1,0 +1,245 @@
+1. Analisando o Controller abaixo, qual é o principal problema arquitetural?
+
+@RestController
+@RequestMapping("/usuarios")
+public class UsuarioController {
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+    
+    @PostMapping
+    public ResponseEntity<Usuario> criarUsuario(@RequestBody Usuario usuario) {
+        if (usuario.getIdade() < 18) {
+            throw new IllegalArgumentException("Usuário deve ser maior de idade");
+        }
+        Usuario novoUsuario = usuarioRepository.save(usuario);
+        return ResponseEntity.ok(novoUsuario);
+    }
+}
+
+A) Controller acessa Repository diretamente
+B) Falta de validação adequada de dados de entrada dos usuários
+C) Uso inadequado da anotação @Autowired para injeção de dependências
+D) Retorno incorreto do ResponseEntity sem tratamento de erros apropriado
+
+2. Qual problema dificulta a testabilidade na classe Service abaixo?
+
+public class ProdutoService {
+    private ProdutoRepository produtoRepository = new ProdutoRepository();
+    private EmailService emailService = new EmailService();
+    
+    public Produto criarProduto(Produto produto) {
+        produto.setDataCriacao(LocalDateTime.now());
+        if (produto.getPreco() <= 0) {
+            throw new IllegalArgumentException("Preço deve ser positivo");
+        }
+        Produto produtoSalvo = produtoRepository.save(produto);
+        emailService.enviarNotificacao("Produto criado: " + produto.getNome());
+        return produtoSalvo;
+    }
+}
+
+A) Falta de validação adequada do preço do produto no método de criação
+B) Instanciação direta das dependências (new)
+C) Método muito longo com muitas responsabilidades diferentes no mesmo local
+D) Falta de tratamento apropriado de exceções e erros no fluxo de execução
+
+3. Qual violação de responsabilidade existe no Repository abaixo?
+
+@Repository
+public class ClienteRepository {
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    
+    public Cliente buscarPorId(Long id) {
+        String sql = "SELECT * FROM clientes WHERE id = ?";
+        Cliente cliente = jdbcTemplate.queryForObject(sql, 
+            new BeanPropertyRowMapper<>(Cliente.class), id);
+        
+        if (cliente.getStatus().equals("INATIVO")) {
+            throw new BusinessException("Cliente inativo não pode ser consultado");
+        }
+        
+        System.out.println("Cliente " + id + " consultado em " + LocalDateTime.now());
+        return cliente;
+    }
+}
+
+A) Uso incorreto do JdbcTemplate para consultas de dados complexas
+B) Falta de tratamento adequado para situações de cliente não encontrado no banco
+C) Repository contém regra de negócio
+D) SQL mal estruturado sem otimização adequada para performance de consultas
+
+4. O que está faltando na documentação da API abaixo?
+
+@RestController
+@RequestMapping("/pedidos")
+public class PedidoController {
+    @PostMapping
+    public ResponseEntity<?> criar(@RequestBody Object pedido) {
+        return ResponseEntity.ok().build();
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<?> buscar(@PathVariable Long id) {
+        return ResponseEntity.ok().build();
+    }
+}
+
+A) Validação adequada de entrada de dados nos métodos do controller
+B) Tratamento apropriado de exceções e situações de erro no fluxo
+C) Injeção de dependências e configuração adequada do Spring Framework
+D) Documentação da API com tipos específicos
+
+5. Como melhorar o uso do Optional no código abaixo?
+
+public String obterNomeUsuario(Long id) {
+    Optional<Usuario> usuario = usuarioRepository.findById(id);
+    
+    if (usuario.isPresent()) {
+        if (usuario.get().getNome() != null) {
+            return usuario.get().getNome();
+        } else {
+            return "Nome não informado";
+        }
+    } else {
+        throw new RuntimeException("Usuário não encontrado");
+    }
+}
+
+A) Usar orElse() e map() funcionalmente
+B) Remover o Optional e usar verificação de null tradicional na implementação
+C) Adicionar mais validações de entrada e tratamento de casos extremos no método
+D) Usar try-catch em vez de verificação de isPresent() para tratamento de erros
+
+6. Qual problema de performance existe na entidade JPA?
+
+@Entity
+@Table(name = "produtos")
+public class Produto {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    private String nome;
+    private BigDecimal preco;
+    
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<Categoria> categorias;
+}
+
+A) Uso de BigDecimal em vez de double para representação numérica com maior precisão
+B) GenerationType.IDENTITY impede batch inserts
+C) Falta de índices adequados nas colunas da tabela para otimização de consultas
+D) Nome da tabela muito genérico sem seguir convenções de nomenclatura adequadas
+
+7. Qual a principal violação arquitetural no Controller?
+
+@RestController
+@RequestMapping("/vendas")
+public class VendaController {
+    @Autowired
+    private VendaRepository vendaRepository;
+    
+    @PostMapping
+    public ResponseEntity<String> processarVenda(@RequestBody VendaDTO vendaDTO) {
+        if (vendaDTO.getItens().isEmpty()) {
+            return ResponseEntity.badRequest().body("Venda deve ter itens");
+        }
+        
+        BigDecimal total = vendaDTO.getItens().stream()
+            .map(item -> item.getPreco().multiply(new BigDecimal(item.getQuantidade())))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        Venda venda = new Venda();
+        venda.setTotal(total);
+        vendaRepository.save(venda);
+        
+        return ResponseEntity.ok("Venda processada com sucesso");
+    }
+}
+
+A) Falta de validação adequada dos dados de entrada recebidos pela API
+B) Uso inadequado de streams Java 8 para processamento de coleções de dados
+C) Controller contém regra de negócio
+D) Retorno de String em vez de objeto estruturado com informações detalhadas
+
+8. Qual problema de segurança existe no código?
+
+@RestController
+@RequestMapping("/usuarios")
+public class UsuarioController {
+    @GetMapping
+    public List<Usuario> listarUsuarios() {
+        return usuarioService.buscarTodos();
+    }
+    
+    @PostMapping
+    public Usuario criarUsuario(@RequestBody Usuario usuario) {
+        return usuarioService.salvar(usuario);
+    }
+}
+
+@Entity
+public class Usuario {
+    private Long id;
+    private String nome;
+    private String email;
+    private String senha;
+    private String token;
+}
+
+A) Falta de autenticação adequada nos endpoints para controle de acesso
+B) Uso inadequado de anotações JPA na configuração das entidades do sistema
+C) Exposição de dados sensíveis ao retornar entidade
+D) Falta de validação adequada de email dos usuários cadastrados no sistema
+
+9. Qual problema existe no teste unitário?
+
+@Test
+public void testCriarPedido() {
+    PedidoService pedidoService = new PedidoService();
+    
+    Pedido pedido = new Pedido();
+    pedido.setValor(BigDecimal.valueOf(100.00));
+    
+    Pedido resultado = pedidoService.criarPedido(pedido);
+    
+    assertNotNull(resultado);
+    assertEquals(BigDecimal.valueOf(100.00), resultado.getValor());
+}
+
+A) Falta de @Mock e @InjectMocks
+B) Uso incorreto do assertEquals para comparação de valores no teste unitário
+C) Falta de setup adequado do teste e configuração do ambiente de execução
+D) Valor do pedido muito baixo para teste considerando cenários realísticos de negócio
+
+10. Qual o principal problema de performance no código de paginação?
+
+@RestController
+@RequestMapping("/produtos")
+public class ProdutoController {
+    @GetMapping
+    public List<Produto> buscarProdutos(
+        @RequestParam(required = false) String nome,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "1000") int size) {
+        
+        List<Produto> todosProdutos = produtoService.buscarTodos();
+        
+        if (nome != null) {
+            todosProdutos = todosProdutos.stream()
+                .filter(p -> p.getNome().contains(nome))
+                .collect(Collectors.toList());
+        }
+        
+        int inicio = page * size;
+        int fim = Math.min(inicio + size, todosProdutos.size());
+        
+        return todosProdutos.subList(inicio, fim);
+    }
+}
+
+A) Tamanho da página muito grande (1000) causando sobrecarga de memória no servidor
+B) Busca todos os registros em memória
+C) Uso inadequado de streams para processamento de grandes volumes de dados
+D) Falta de validação adequada dos parâmetros de entrada recebidos pela requisição
