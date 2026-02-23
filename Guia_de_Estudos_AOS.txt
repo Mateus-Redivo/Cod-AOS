@@ -1,0 +1,106 @@
+GUIA DE ESTUDOS — PROVAS DE AOS (INTRODUÇÃO A API E MVC)
+
+--------------------------------------------------
+1) O que você precisa saber para a prova
+--------------------------------------------------
+
+1. API (conceito básico)
+- API é um conjunto de regras para comunicação entre sistemas.
+- Ideia central: o cliente faz um pedido e o servidor responde.
+- Não é banco de dados, antivírus ou editor de imagens.
+
+2. Cliente e Servidor
+- Cliente: quem faz a requisição (navegador, app, sistema).
+- Servidor: quem recebe a requisição e responde.
+- Pegadinha comum: DNS, sistema operacional e banco de dados NÃO são o cliente da API.
+
+3. Métodos HTTP principais
+- GET: buscar dados.
+- POST: criar novo dado.
+- PUT: atualizar (geralmente substitui todo o recurso).
+- DELETE: remover dado.
+- Dica de prova: “criar novo recurso” normalmente aponta para POST.
+
+4. Endpoint
+- Endpoint é a URL da API para uma ação.
+- Exemplo: /usuarios, /produtos, /alunos.
+- Em geral, rotas como /usuarios representam coleção de recursos.
+
+5. Formato de dados
+- JSON é o formato mais comum em APIs.
+- Exemplo de JSON:
+  {
+    "nome": "Ana",
+    "idade": 20
+  }
+
+6. Códigos de status HTTP mais cobrados
+- 200: sucesso.
+- 404: rota/recurso não encontrado.
+- 500: erro interno no servidor.
+
+7. MVC (bem básico)
+- Model: dados e regras de negócio.
+- View: apresentação/exibição de informações.
+- Controller: recebe a requisição e coordena a ação.
+- Pegadinha comum:
+  - Model NÃO é para tela.
+  - View NÃO guarda regra de negócio.
+  - Controller NÃO é CSS nem DNS.
+
+Fluxo simples:
+Cliente -> Controller -> Model -> Resposta
+
+--------------------------------------------------
+2) Resumo rápido (para memorizar)
+--------------------------------------------------
+
+- API = comunicação entre sistemas.
+- Cliente pede, servidor responde.
+- GET busca, POST cria, PUT atualiza, DELETE remove.
+- Endpoint = endereço da ação na API.
+- JSON = formato de troca de dados.
+- 200 (ok), 404 (não encontrado), 500 (erro no servidor).
+- MVC: Controller controla, Model trata dados, View apresenta.
+- Em alternativas, elimine primeiro opções “absurdas” (antivírus, JPEG, CSS, DNS etc.).
+
+--------------------------------------------------
+3) Plano de estudo sugerido (3 encontros)
+--------------------------------------------------
+
+Encontro 1 (30-40 min)
+- Ler conceitos: API, cliente-servidor, endpoint.
+- Decorar métodos HTTP: GET, POST, PUT, DELETE.
+- Fazer 5 perguntas orais com colegas.
+
+Encontro 2 (30-40 min)
+- Revisar códigos HTTP: 200, 404, 500.
+- Praticar leitura de rotas: /usuarios, /produtos.
+- Explicar para alguém o que é JSON (com exemplo simples).
+
+Encontro 3 (30-40 min)
+- Revisar MVC: função de Model, View, Controller.
+- Treinar fluxo básico de requisição.
+- Resolver mini simulado (abaixo) e corrigir.
+
+--------------------------------------------------
+4) Mini simulado de revisão
+--------------------------------------------------
+
+1. Em uma API web, quem geralmente faz a requisição?
+A) Servidor DNS  B) Cliente  C) Banco de dados  D) Sistema operacional
+
+2. Qual método HTTP é mais usado para criar novo recurso?
+A) GET  B) DELETE  C) POST  D) PUT
+
+3. O que o código HTTP 200 representa?
+A) Erro interno  B) Sucesso  C) Não encontrado  D) Acesso negado
+
+4. No MVC, quem representa dados e regras de negócio?
+A) View  B) Model  C) Controller  D) Router
+
+5. Endpoint é:
+A) Tipo de banco  B) URL de ação da API  C) Editor de imagem  D) Antivírus
+
+Gabarito mini simulado: 1-B, 2-C, 3-B, 4-B, 5-B
+
