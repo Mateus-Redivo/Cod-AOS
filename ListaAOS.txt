@@ -1,0 +1,55 @@
+20 Exercícios Dissertativos — API e MVC
+
+Conceitos de API
+
+1. Explique, com suas próprias palavras, o que é uma API e qual é sua principal função na comunicação entre sistemas.
+
+2. Descreva o modelo cliente-servidor no contexto de APIs. Qual é o papel de cada um nessa comunicação?
+
+3. Por que é incorreto afirmar que um banco de dados, um DNS ou um sistema operacional são "clientes" de uma API? Justifique sua resposta.
+
+Métodos HTTP
+
+4. Apresente os quatro principais métodos HTTP (GET, POST, PUT e DELETE), explicando a finalidade de cada um com exemplos práticos de uso.
+
+5. Qual a diferença entre os métodos POST e PUT? Em quais situações cada um deve ser utilizado?
+
+6. Imagine que você está desenvolvendo uma API para um sistema de cadastro de alunos. Descreva quais métodos HTTP seriam usados para: listar todos os alunos, cadastrar um novo aluno, atualizar os dados de um aluno existente e excluir um aluno.
+
+Endpoints
+
+7. O que é um endpoint em uma API? Dê três exemplos de endpoints e explique o que cada um representaria em um sistema real.
+
+8. Explique por que rotas como /usuarios ou /produtos são chamadas de "coleção de recursos". Como seria a rota para acessar um usuário específico?
+
+Formato de Dados
+
+9. O que é JSON e por que ele é amplamente utilizado em APIs modernas? Apresente um exemplo de objeto JSON representando um produto de uma loja.
+
+10. Compare o formato JSON com outros formatos de dados (como XML). Quais são as vantagens do JSON no contexto de APIs web?
+
+Códigos de Status HTTP
+
+11. Explique o significado dos códigos de status HTTP 200, 404 e 500. Em quais situações práticas cada um deles seria retornado por uma API?
+
+12. Você fez uma requisição GET para a rota /clientes/999 e recebeu o código 404. O que isso significa? Como você resolveria esse problema?
+
+13. Qual a importância dos códigos de status HTTP para o desenvolvedor que consome uma API? Dê exemplos de como esses códigos ajudam na depuração de erros.
+
+MVC (Model-View-Controller)
+
+14. Descreva o padrão de arquitetura MVC, explicando detalhadamente a responsabilidade de cada uma das três camadas: Model, View e Controller.
+
+15. Por que a View não deve conter regras de negócio? Explique quais problemas podem surgir ao violar essa separação de responsabilidades.
+
+16. Desenhe (em texto) o fluxo completo de uma requisição em uma aplicação MVC, desde o momento em que o cliente faz um pedido até o retorno da resposta. Explique cada etapa.
+
+17. Qual a vantagem de separar a aplicação em Model, View e Controller em vez de colocar todo o código junto? Cite pelo menos duas vantagens dessa abordagem.
+
+Integração de Conceitos
+
+18. Imagine que você está criando uma API para um sistema de biblioteca. Descreva: quais endpoints você criaria, quais métodos HTTP usaria, e como o padrão MVC organizaria essa aplicação.
+
+19. Explique como uma requisição do tipo POST para o endpoint /livros seria processada em uma aplicação estruturada no padrão MVC. Detalhe o papel do Controller e do Model nesse processo.
+
+20. Um colega afirmou que "o Controller é responsável por armazenar os dados no banco e a View cuida das regras de negócio". Identifique os erros nessa afirmação e corrija-os com base no padrão MVC.
