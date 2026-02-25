@@ -92,14 +92,6 @@ PASSO A PASSO PARA RESOLVER:
 5. Se válido: continue | Se inválido: tente outro
 6. Repita até todos estarem na direita
 
----
 
-ATENCAO:
 
-- Prova usa jogo para ensinar conceitos de IA
-- Nao exige programacao, apenas raciocinio logico
-- A regra principal e FUNDAMENTAL - decore
-- Sempre verificar AMBAS as margens
-- Entender que voce pensa como IA ao jogar
-- Barco NUNCA pode atravessar vazio (precisa remador)
 
