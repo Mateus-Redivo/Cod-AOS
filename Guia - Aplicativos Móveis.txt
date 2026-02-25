@@ -1,0 +1,50 @@
+GUIA DE ESTUDOS - APLICATIVOS MOVEIS
+
+TOPICOS:
+
+1. CONCEITOS BASICOS
+   - O que e um aplicativo movel
+   - Diferenca entre app e site mobile
+   - Caracteristicas de apps: touch, offline/online, acesso a recursos
+
+2. TIPOS DE APLICATIVOS
+
+   NATIVOS
+   - Feitos para cada plataforma (Android ou iOS)
+   - Android usa Java/Kotlin, iOS usa Swift
+   - Melhor performance e acesso total aos recursos
+   - Custo maior, dois codigos separados
+   - Exemplos: WhatsApp, Instagram, Spotify
+   
+   HIBRIDOS
+   - Um codigo funciona em varias plataformas
+   - Frameworks: React Native, Flutter
+   - Menor custo e tempo de desenvolvimento
+   - Performance inferior ao nativo
+   - Bom para startups e orcamento limitado
+   
+   PWA (Progressive Web App)
+   - App web que funciona como aplicativo
+   - Instala sem passar pelas lojas
+   - Custo muito baixo
+   - Acesso limitado aos recursos do dispositivo
+
+3. COMPARACAO
+   - Performance: Nativo maior que Hibrido maior que PWA
+   - Custo: PWA menor que Hibrido menor que Nativo
+   - Tempo: PWA menor que Hibrido menor que Nativo
+   - Distribuicao: Nativo e Hibrido nas lojas, PWA pela web
+
+4. LOJAS DE APLICATIVOS
+   - Google Play Store (Android) - mais downloads
+   - Apple App Store (iOS) - mais receita por usuario
+
+5. QUANDO USAR CADA TIPO
+   - Depende de prazo, orcamento, performance e recursos
+   - Nao existe tipo melhor, existe o mais adequado
+
+DICAS:
+- Decore as caracteristicas de cada tipo
+- Saiba comparar vantagens e desvantagens
+- Pratique analisar cenarios e escolher o tipo certo
+

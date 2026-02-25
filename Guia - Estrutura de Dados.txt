@@ -1,0 +1,79 @@
+GUIA DE ESTUDOS - ESTRUTURA DE DADOS
+
+TOPICOS:
+
+1. CONCEITO
+   - Formas de organizar dados na memoria
+   - Cada estrutura tem vantagens e desvantagens
+
+2. LISTAS
+   - Sintaxe: lista = [1, 2, 3]
+   - Mutavel (pode mudar)
+   - Aceita duplicados
+   - Mantem ordem
+   - append() adiciona no final
+   - pop() remove o ultimo
+   - Acesso por indice (comeca em 0)
+
+3. TUPLAS
+   - Sintaxe: tupla = (1, 2, 3)
+   - Imutavel (nao muda depois de criada)
+   - Mais rapida para leitura
+   - Usada para dados fixos
+
+4. CONJUNTOS (SET)
+   - Sintaxe: conjunto = {1, 2, 3}
+   - Nao permite duplicados
+   - Nao mantem ordem
+   - Operacoes: uniao (|), intersecao (&), diferenca (-)
+   - Rapido para verificar se elemento existe
+
+5. DICIONARIOS
+   - Sintaxe: dict = {'chave': 'valor'}
+   - Armazena pares chave-valor
+   - Acesso por chave: dict['nome']
+   - Chaves devem ser imutaveis
+   - Nao permite chaves duplicadas
+
+6. PILHA (STACK)
+   - LIFO: ultimo a entrar, primeiro a sair
+   - append() empilha
+   - pop() desempilha
+   - Exemplo: historico de navegacao
+
+7. FILA (QUEUE)
+   - FIFO: primeiro a entrar, primeiro a sair
+   - append() enfileira
+   - pop(0) desenfileira
+   - Exemplo: fila de impressao
+
+8. BUSCA
+   - Linear: percorre um por um, O(n)
+   - Binaria: divide ao meio, O(log n), precisa estar ordenado
+
+9. RECURSAO
+   - Funcao que chama a si mesma
+   - Precisa de caso base para parar
+   - Exemplo: fatorial
+
+10. COMPLEXIDADE
+    - O(1) constante (melhor)
+    - O(log n) logaritmica
+    - O(n) linear
+    - O(n2) quadratica (pior)
+
+RESUMO:
+
+Estrutura   | Mutavel | Duplicados | Ordem
+------------|---------|------------|------
+Lista       | SIM     | SIM        | SIM
+Tupla       | NAO     | SIM        | SIM
+Set         | SIM     | NAO        | NAO
+Dicionario  | SIM     | NAO chaves | NAO
+
+DICAS:
+- LIFO = pilha, FIFO = fila
+- Busca binaria so funciona em lista ordenada
+- Toda recursao precisa de caso base
+- Indices em Python comecam em 0
+

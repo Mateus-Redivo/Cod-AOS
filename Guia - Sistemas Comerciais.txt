@@ -1,0 +1,78 @@
+GUIA DE ESTUDOS - SISTEMAS COMERCIAIS
+
+TOPICOS:
+
+1. O QUE E UM SISTEMA COMERCIAL
+   - Programa para ajudar empresas a funcionar melhor
+   - Automatiza processos
+   - Controla vendas, estoque, clientes, financas
+   - Ferramenta de trabalho
+
+2. ANTES DOS SISTEMAS
+   - Tudo anotado em papel
+   - Contagem manual
+   - Mais lento e com mais erros
+   - Dificil encontrar informacoes
+
+3. VANTAGENS DOS SISTEMAS
+   - Automacao de tarefas repetitivas
+   - Menos erros
+   - Informacoes organizadas
+   - Relatorios instantaneos
+   - Alertas automaticos
+   - Ajuda na tomada de decisao
+
+4. EXEMPLO: PADARIA
+   - Registra vendas automaticamente
+   - Controla estoque em tempo real
+   - Avisa quando produtos acabam
+   - Gera relatorios de vendas
+   - Calcula lucro automaticamente
+   - Nao faz paes, apenas auxilia
+
+5. O QUE E PROGRAMAR
+   - Ensinar o computador a resolver problemas
+   - Dar instrucoes logicas
+   - Criar solucoes atraves de codigo
+
+6. ONDE SISTEMAS SAO USADOS
+   - Lojas e supermercados
+   - Hospitais
+   - Escolas
+   - Bancos
+   - Restaurantes
+   - Estao em todos os lugares
+
+7. SISTEMA ERP
+   - Enterprise Resource Planning
+   - Integra todos os setores da empresa
+   - Funciona como cerebro central
+   - Quando vende: estoque atualiza, financeiro registra
+
+8. TRES ELEMENTOS
+   - Usuarios: pessoas que usam
+   - Software: o programa
+   - Dados: informacoes armazenadas
+
+9. ETICA PROFISSIONAL
+   - Sistemas guardam dados sensiveis
+   - Desenvolvedor deve proteger dados
+   - Respeitar privacidade
+
+10. CARREIRAS
+    - Desenvolvedor Full Stack
+    - Desenvolvedor Mobile
+    - Analista de Sistemas
+    - Banco de Dados
+    - Gerente de Projetos
+
+11. TECNOLOGIA COMO NECESSIDADE
+    - Antes era diferencial
+    - Hoje e indispensavel
+    - Sem sistemas: empresa lenta e com erros
+
+DICAS:
+- Sistemas auxiliam, nao substituem pessoas
+- ERP integra setores
+- Tecnologia hoje e necessidade, nao luxo
+

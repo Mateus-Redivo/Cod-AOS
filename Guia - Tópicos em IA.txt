@@ -1,0 +1,105 @@
+GUIA DE ESTUDOS - TOPICOS EM INTELIGENCIA ARTIFICIAL
+
+TOPICOS:
+
+1. O QUE E INTELIGENCIA ARTIFICIAL
+   - Computador fazendo tarefas que precisariam inteligencia humana
+   - Exemplos: reconhecer rostos, entender fala, recomendar musicas
+   - Nao e magica, sao regras e calculos
+   - Nao sente nem pensa como humanos
+
+2. IA NO DIA A DIA
+   - Spotify/YouTube: recomendacoes
+   - Redes sociais: feed personalizado
+   - GPS/Waze: melhor rota
+   - Reconhecimento facial
+   - Assistentes virtuais
+   - Tradutores automaticos
+   - Filtros de spam
+
+3. JOGO DOS PADRES E CANIBAIS
+   - 3 padres + 3 canibais
+   - Todos na margem esquerda do rio
+   - Precisam ir para margem direita
+   - Barco leva 1 ou 2 pessoas
+
+4. REGRA PRINCIPAL
+   - Nunca pode ter mais canibais que padres numa margem
+   - Se tem 1 padre e 2 canibais = perigo
+   - Se tem 0 padres e qualquer canibal = ok
+   - Vale para as duas margens sempre
+
+5. RESTRICOES
+   - Barco leva no maximo 2 pessoas
+   - Barco nunca vai vazio (alguem precisa remar)
+   - Objetivo: todos na margem direita
+
+6. ESTADOS DO JOGO
+   - Estado = configuracao atual
+   - Estado inicial: todos na esquerda
+   - Estado final: todos na direita
+
+7. VALIDANDO ESTADOS
+   - Conta padres e canibais em cada margem
+   - Se canibais maior que padres e padres maior que 0 = invalido
+   - Se 0 padres com qualquer canibal = ok
+
+8. RACIOCINIO LOGICO = IA
+   - Analisar situacao atual
+   - Pensar nas possibilidades
+   - Verificar regras
+   - Prever consequencias
+   - Escolher melhor caminho
+   - IA faz a mesma coisa
+
+9. TENTATIVA E ERRO
+   - Testa um movimento
+   - Se funciona: continua
+   - Se quebra regra: volta e tenta outro
+   - IA usa busca da mesma forma
+
+10. POR QUE ESTE JOGO ENSINA IA
+    - Mostra como IA resolve problemas
+    - Ensina a seguir regras
+    - Desenvolve pensamento computacional
+    - Treina planejamento
+
+REGRAS RESUMIDAS:
+- 3 padres + 3 canibais
+- Barco leva 1 ou 2 pessoas
+- Barco nunca vai vazio
+- Nunca mais canibais que padres em qualquer margem
+- Excecao: 0 padres = ok qualquer numero de canibais
+
+CONCEITOS:
+- IA = computador fazendo tarefas inteligentes
+- Estado = configuracao atual do jogo
+- Regra = restricao que nao pode ser violada
+- Busca = explorar caminhos ate achar solucao
+
+DICAS:
+- Decore a regra: nunca mais canibais que padres
+- Saiba os numeros: 3 padres, 3 canibais, barco para 2
+- Barco nunca vai vazio
+- Jogar o problema = pensar como IA
+
+PASSO A PASSO PARA RESOLVER:
+
+1. Anote estado atual (quem está onde?)
+2. Liste movimentos possíveis (1 ou 2 no barco)
+3. Para cada movimento, calcule novo estado
+4. Verifique AMBAS margens (válido ou inválido?)
+5. Se válido: continue | Se inválido: tente outro
+6. Repita até todos estarem na direita
+
+---
+
+ATENCAO:
+
+- Prova usa jogo para ensinar conceitos de IA
+- Nao exige programacao, apenas raciocinio logico
+- A regra principal e FUNDAMENTAL - decore
+- Sempre verificar AMBAS as margens
+- Entender que voce pensa como IA ao jogar
+- Barco NUNCA pode atravessar vazio (precisa remador)
+

@@ -1,0 +1,72 @@
+GUIA DE ESTUDOS - TOPICOS EM COMPUTACAO
+
+TOPICOS:
+
+1. HARDWARE VS SOFTWARE
+   - Hardware: parte fisica, pode tocar
+   - Software: programas, nao pode tocar
+   - Exemplos hardware: teclado, mouse, monitor
+   - Exemplos software: Windows, jogos, navegadores
+
+2. CPU - PROCESSADOR
+   - Cerebro do computador
+   - Executa instrucoes dos programas
+   - Processa informacoes e faz calculos
+
+3. MEMORIA RAM
+   - Memoria temporaria
+   - Guarda o que esta sendo usado agora
+   - Desliga o PC, perde tudo
+   - Mais RAM = mais programas ao mesmo tempo
+
+4. HD E SSD
+   - HD: disco mecanico, gira, lento, barato
+   - SSD: chip eletronico, rapido, caro
+   - SSD abre programas muito mais rapido
+
+5. GPU - PLACA DE VIDEO
+   - Processa imagens e graficos
+   - Essencial para jogos
+   - CPU cuida da logica, GPU cuida dos graficos
+
+6. PLACA-MAE
+   - Conecta todos os componentes
+   - CPU, RAM, HD, GPU se encaixam nela
+   - Sem ela as pecas nao se comunicam
+
+7. ORDEM DE FUNCIONAMENTO
+   - Voce clica
+   - CPU recebe o comando
+   - HD/SSD le os arquivos
+   - RAM carrega na memoria
+   - GPU processa graficos
+   - Monitor exibe
+
+8. MAIS RAM AJUDA
+   - Pouca RAM: poucos programas, trava
+   - Muita RAM: varios programas, sem travamento
+
+9. GERENCIADOR DE TAREFAS
+   - Atalho: Ctrl + Shift + Esc
+   - Mostra uso de CPU, RAM e disco
+
+RESUMO:
+
+Componente | Funcao            | Analogia
+-----------|-------------------|------------------
+CPU        | Processar         | Cerebro
+RAM        | Memoria temp      | Mesa de trabalho
+HD         | Armazenar lento   | Arquivo fisico
+SSD        | Armazenar rapido  | Arquivo digital
+GPU        | Graficos          | Desenhista
+Placa-Mae  | Conectar tudo     | Esqueleto
+
+DIFERENCAS:
+- RAM apaga ao desligar, HD/SSD mantem
+- HD mecanico lento, SSD chip rapido
+- CPU logica geral, GPU graficos
+
+DICAS:
+- Hardware = toca, Software = nao toca
+- Mais RAM = mais programas simultaneos
+- SSD muito mais rapido que HD

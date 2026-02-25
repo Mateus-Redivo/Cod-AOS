@@ -1,0 +1,74 @@
+GUIA DE ESTUDOS - PROGRAMACAO ORIENTADA A OBJETOS
+
+TOPICOS:
+
+1. PARADIGMA DE PROGRAMACAO
+   - Paradigma e uma forma de pensar e organizar codigo
+   - Nao e linguagem, e uma abordagem
+   - Existem varios: procedural, orientado a objetos, funcional
+
+2. PROCEDURAL VS POO
+   
+   PROCEDURAL
+   - Codigo em sequencia de passos
+   - Bom para programas pequenos
+   - Em projetos grandes: dificil organizar, codigo duplicado
+   
+   POO
+   - Organiza codigo em objetos
+   - Melhor para sistemas grandes
+   - Resolve problemas de organizacao
+
+3. OBJETO
+   - Representa algo do mundo real no programa
+   - Tem caracteristicas (atributos)
+   - Realiza acoes (metodos)
+   - Exemplos: Cliente, Produto, Carro
+
+4. ATRIBUTOS
+   - Caracteristicas do objeto
+   - Guardam o estado
+   - Respondem: o que o objeto TEM ou E
+   - Exemplos: nome, preco, cor, idade
+
+5. METODOS
+   - Acoes que o objeto faz
+   - Respondem: o que o objeto FAZ
+   - Escritos com parenteses: metodo()
+   - Exemplos: comprar(), calcular(), atualizar()
+
+6. ATRIBUTO VS METODO
+   - Atributo = substantivo (coisa)
+   - Metodo = verbo (acao)
+
+7. POO EM SISTEMAS COMERCIAIS
+   - Loja: Cliente, Produto, Venda
+   - Escola: Aluno, Professor, Turma
+   - Banco: Cliente, Conta, Transacao
+
+8. VANTAGENS DA POO
+   - Organizacao clara
+   - Reutilizacao de codigo
+   - Facilita trabalho em equipe
+   - Manutencao mais facil
+   - Representa o mundo real
+
+EXEMPLOS:
+
+Aluno
+- Atributos: nome, saldo, turma
+- Metodos: comprar(), consultarSaldo()
+
+Produto
+- Atributos: codigo, nome, preco, estoque
+- Metodos: verificarEstoque(), calcularDesconto()
+
+Conta Bancaria
+- Atributos: numero, saldo, titular
+- Metodos: depositar(), sacar(), transferir()
+
+DICAS:
+- POO modela o mundo real
+- Atributo = informacao, Metodo = acao
+- POO resolve: organizacao, duplicacao, trabalho em equipe
+

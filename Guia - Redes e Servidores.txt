@@ -1,0 +1,64 @@
+GUIA DE ESTUDOS - REDES E SERVIDORES
+
+TOPICOS:
+
+1. TOPOLOGIA DE REDE
+   - Forma como dispositivos estao organizados
+   - Pode ser fisica ou logica
+   - Impacta custo, desempenho e tolerancia a falhas
+
+2. TOPOLOGIA ESTRELA
+   - Todos conectados a um ponto central (switch)
+   - Cada dispositivo tem seu proprio cabo
+   - Falha individual nao afeta os demais
+   - Mais usada atualmente
+   - Ponto critico: se switch falhar, tudo para
+
+3. TOPOLOGIA BARRA
+   - Todos conectados a um unico cabo central
+   - Baixo custo
+   - Se cabo principal falhar, tudo para
+   - Colisao de dados
+   - Obsoleta, nao e mais usada
+
+4. TOPOLOGIA ANEL
+   - Dispositivos conectados em circulo
+   - Dados viajam em um sentido
+   - Sem colisao
+   - Falha em qualquer ponto pode derrubar tudo
+   - Uso limitado
+
+5. TOPOLOGIA MALHA
+   - Cada dispositivo conectado a todos os outros
+   - Multiplos caminhos
+   - Altissima tolerancia a falhas
+   - Custo muito alto
+   - Usada em redes criticas (bancos, militares)
+
+6. COMPARACAO
+
+   Topologia | Ponto Critico   | Custo | Tolerancia
+   ----------|-----------------|-------|----------
+   Estrela   | Switch central  | Medio | Boa
+   Barra     | Cabo principal  | Baixo | Baixa
+   Anel      | Qualquer no     | Medio | Media
+   Malha     | Nenhum          | Alto  | Excelente
+
+7. ESCOLHA DE TOPOLOGIA
+   - Baixo custo, uso simples: Estrela
+   - Alta disponibilidade: Malha
+   - Rede domestica: Estrela
+   - Sistema bancario: Malha
+
+PONTOS CRITICOS:
+- Estrela: switch central
+- Barra: cabo principal
+- Anel: qualquer dispositivo
+- Malha: nenhum ponto unico
+
+DICAS:
+- Estrela e a mais usada
+- Barra e obsoleta
+- Malha e a mais confiavel mas mais cara
+- Entenda o equilibrio custo vs confiabilidade
+

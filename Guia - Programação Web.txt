@@ -1,0 +1,62 @@
+GUIA DE ESTUDOS - PROGRAMACAO WEB
+
+TOPICOS:
+
+1. INTERNET VS WWW
+   - Internet = infraestrutura de redes que conecta dispositivos
+   - WWW = servico que funciona sobre a internet
+   - Internet suporta: web, email, streaming
+   - WWW usa internet, mas nao sao a mesma coisa
+
+2. SITES ESTATICOS
+   - Conteudo fixo para todos
+   - Escrito direto em HTML
+   - Nao usa banco de dados
+   - Para mudar, edita HTML na mao
+   - Exemplos: portfolios, paginas simples
+
+3. SITES DINAMICOS
+   - Conteudo gerado automaticamente
+   - Usa banco de dados
+   - Muda conforme usuario
+   - Exemplos: redes sociais, lojas online, streaming
+
+4. COMPARACAO ESTATICO VS DINAMICO
+   - Estatico: fixo, sem banco, edita manual, mesmo para todos
+   - Dinamico: gerado, com banco, automatico, personalizado
+
+5. DNS
+   - Domain Name System
+   - Traduz nomes em IPs
+   - www.google.com vira 142.250.190.46
+   - Sem DNS teriamos que decorar numeros
+
+6. CLIENTE-SERVIDOR
+   - Cliente faz pedido (navegador)
+   - Servidor processa e responde
+   - Fluxo: cliente pede, servidor processa, servidor responde, cliente exibe
+
+7. PROCESSO DE NAVEGACAO
+   - Digita endereco no navegador
+   - DNS traduz nome em IP
+   - Navegador envia requisicao ao servidor
+   - Servidor responde com HTML
+   - Navegador exibe a pagina
+
+8. HTML
+   - HyperText Markup Language
+   - Define estrutura da pagina
+   - Nao e linguagem de programacao
+   - Usa tags para organizar: h1, p, img
+
+9. HEAD VS BODY
+   - head: informacoes sobre a pagina, usuario nao ve
+   - body: conteudo visivel da pagina
+
+DICAS:
+- Internet e diferente de WWW
+- Estatico = fixo, Dinamico = personalizado
+- DNS traduz nome em IP
+- Cliente pede, servidor responde
+- HTML estrutura, CSS estiliza, JavaScript programa
+

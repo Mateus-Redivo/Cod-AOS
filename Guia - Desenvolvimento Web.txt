@@ -1,0 +1,57 @@
+GUIA DE ESTUDOS - DESENVOLVIMENTO WEB
+
+TOPICOS:
+
+1. O QUE E HTML
+   - HyperText Markup Language
+   - Linguagem de marcacao, nao de programacao
+   - Serve para estruturar paginas web
+   - HTML estrutura, CSS estiliza, JavaScript programa
+
+2. ESTRUTURA BASICA
+
+   DOCTYPE html - declara versao HTML5
+   html - container principal
+   head - metadados (nao aparece na tela)
+   body - conteudo visivel da pagina
+
+3. TAGS PRINCIPAIS
+   - DOCTYPE html - versao do HTML
+   - html - elemento raiz
+   - head - metadados
+   - body - conteudo visivel
+   - h1 a h6 - titulos (h1 mais importante)
+   - p - paragrafos
+   - a href - links
+   - img src - imagens (nao tem fechamento)
+   - ul/ol + li - listas
+   - div - container geral
+   - span - container inline
+
+4. TAGS E ATRIBUTOS
+   - Tag de abertura: <tag>
+   - Tag de fechamento: </tag>
+   - Tags sem fechamento: img, br, hr
+   - src - caminho de imagens
+   - href - destino de links
+   - alt - descricao de imagens
+
+5. HEAD VS BODY
+   - head: titulo, charset, links CSS
+   - body: o que o usuario ve
+
+6. LISTAS
+   - ul - lista com marcadores
+   - ol - lista numerada
+   - li - item da lista
+
+7. ERROS COMUNS
+   - Esquecer de fechar tags
+   - Confundir src e href
+   - Estrutura errada
+
+DICAS:
+- HTML nao e programacao, e marcacao
+- Toda tag aberta deve ser fechada (exceto img, br, hr)
+- head = sobre a pagina, body = conteudo da pagina
+
