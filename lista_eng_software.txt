@@ -1,0 +1,19 @@
+Lista de Exercícios – Engenharia de Software
+
+Tópico 1: Diagramas de Caso de Uso
+1. Explique o que é um relacionamento do tipo "extend" em um Diagrama de Caso de Uso e dê um exemplo prático.
+2. O que é uma associação em um Diagrama de Caso de Uso? Como ela é representada?
+3. Qual o objetivo principal do Diagrama de Caso de Uso em um projeto de software?
+
+Tópico 2: Gerenciamento de Riscos
+4. Dê um exemplo de estratégia de mitigação de risco em projetos de software e explique sua importância.
+5. O que caracteriza um risco operacional, técnico e contratual? Dê exemplos.
+
+Tópico 3: Estimativas e Custos
+6. Explique a técnica de estimativa de três pontos e sua utilidade.
+7. Qual a diferença entre estimativas Top-Down e Bottom-Up?
+8. Por que é importante considerar custos de manutenção em projetos de software?
+
+Tópico 4: Atores e Funcionalidades
+9. O que é um ator em um Diagrama de Caso de Uso? Dê exemplos de atores humanos e sistêmicos.
+10. Por que é importante que o cliente compreenda as funcionalidades representadas no diagrama?
