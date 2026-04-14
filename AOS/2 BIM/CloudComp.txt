@@ -23,7 +23,7 @@ Pontos para reflexão:
 MODELOS DE SERVICO
 ─────────────────────────────────────────
 
-IaaS – Infrastructure as a Service (Infraestrutura como Servico)
+IaaS - Infrastructure as a Service (Infraestrutura como Servico)
   Fornece infraestrutura virtualizada: servidores, armazenamento e redes.
   O usuario tem controle total sobre o sistema operacional, aplicativos e configuracoes.
   Indicado para quem precisa de flexibilidade tecnica maxima.
@@ -35,7 +35,7 @@ IaaS – Infrastructure as a Service (Infraestrutura como Servico)
 
 ─────────────────────────────────────────
 
-PaaS – Platform as a Service (Plataforma como Servico)
+PaaS - Platform as a Service (Plataforma como Servico)
   Ambiente completo para desenvolvimento e implantacao de aplicacoes.
   O desenvolvedor foca apenas no codigo — servidores, SO e atualizacoes sao
   gerenciados pelo provedor.
@@ -47,7 +47,7 @@ PaaS – Platform as a Service (Plataforma como Servico)
 
 ─────────────────────────────────────────
 
-SaaS – Software as a Service (Software como Servico)
+SaaS - Software as a Service (Software como Servico)
   Aplicacoes prontas para uso, acessadas diretamente pelo navegador.
   Sem instalacao, sem manutencao — seguranca e atualizacoes sao
   responsabilidade do provedor.
@@ -116,7 +116,7 @@ DESAFIOS
                              os dados podem ser armazenados e processados.
 
 ─────────────────────────────────────────
-ATIVIDADE PRATICA – Google Firebase
+ATIVIDADE PRATICA - Google Firebase
 ─────────────────────────────────────────
 
   1. Criar uma conta gratuita em firebase.google.com
