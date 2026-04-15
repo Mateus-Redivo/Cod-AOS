@@ -1,8 +1,8 @@
 Arquitetura de Software em Nuvem (Cloud Computing)
 
-─────────────────────────────────────────
+────────────────────────────────────────
 INTRODUCAO
-─────────────────────────────────────────
+────────────────────────────────────────
 
 Computação em nuvem é o modelo de entrega de recursos de TI por meio da internet,
 de forma escalável, flexível e sob demanda. Em vez de manter servidores físicos locais,
