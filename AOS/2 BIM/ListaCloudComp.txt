@@ -1,0 +1,109 @@
+===============================================================
+    EXERCICIOS - ARQUITETURA DE SOFTWARE EM NUVEM (CLOUD COMPUTING)
+===============================================================
+
+----------------------------------------------------------------
+1. INTRODUCAO A COMPUTACAO EM NUVEM
+----------------------------------------------------------------
+
+  1. O que e computacao em nuvem e qual e o seu principal diferencial
+     em relacao a infraestrutura de TI tradicional?
+
+  2. Cite tres exemplos de servicos em nuvem que fazem parte do
+     dia a dia das pessoas.
+
+  3. Quais vantagens voce percebe ao utilizar servicos em nuvem?
+     Aponte pelo menos duas.
+
+  4. Quais sao as principais preocupacoes relacionadas a seguranca
+     no uso de servicos em nuvem?
+
+
+----------------------------------------------------------------
+2. MODELOS DE SERVICO (IaaS, PaaS e SaaS)
+----------------------------------------------------------------
+
+  2.1 IaaS - Infrastructure as a Service
+
+    5. Explique o modelo IaaS e indique para qual perfil de usuario
+       ele e mais adequado.
+
+    6. Quais sao os tres exemplos de IaaS apresentados no material?
+       Identifique o provedor de cada um.
+
+  2.2 PaaS - Platform as a Service
+
+    7. O que diferencia o PaaS do IaaS em termos de responsabilidade
+       do desenvolvedor?
+
+    8. Cite dois exemplos de plataformas PaaS e explique como elas
+       facilitam o trabalho de desenvolvimento.
+
+  2.3 SaaS - Software as a Service
+
+    9. Defina o modelo SaaS e explique por que ele nao exige
+       instalacao pelo usuario.
+
+   10. Classifique os servicos abaixo no modelo de servico correto
+       (IaaS, PaaS ou SaaS) e justifique cada escolha:
+         a) Google Docs
+         b) Amazon EC2
+         c) Heroku
+
+
+----------------------------------------------------------------
+3. MODELOS DE IMPLANTACAO
+----------------------------------------------------------------
+
+  11. Quais sao os tres modelos de implantacao de nuvem?
+      Descreva cada um brevemente.
+
+  12. Em que situacao uma empresa preferiria utilizar uma nuvem
+      privada em vez de uma publica? Apresente um exemplo pratico.
+
+  13. O que e nuvem hibrida? Reproduza o exemplo citado no material
+      e explique sua logica de funcionamento.
+
+  14. Por que a nuvem publica e considerada ideal para startups?
+      E para um grande banco, qual modelo seria mais adequado?
+      Justifique sua resposta.
+
+
+----------------------------------------------------------------
+4. VANTAGENS E DESAFIOS
+----------------------------------------------------------------
+
+  4.1 Vantagens
+
+   15. Liste as cinco vantagens da computacao em nuvem apresentadas
+       no material e explique cada uma com suas proprias palavras.
+
+  4.2 Desafios
+
+   16. O que e vendor lock-in e por que ele e considerado um
+       desafio no uso de servicos em nuvem?
+
+   17. Como as leis LGPD e GDPR se relacionam com o armazenamento
+       de dados em servicos de nuvem?
+
+   18. Por que a dependencia de internet e apontada como um
+       desafio? Em quais cenarios esse problema seria mais critico?
+
+
+----------------------------------------------------------------
+5. CURIOSIDADES E REFLEXAO
+----------------------------------------------------------------
+
+   19. O Google Firebase e apresentado como atividade pratica do
+       material. Cite dois recursos do Firebase mencionados e
+       descreva uma possivel aplicacao de cada um em um projeto
+       real.
+
+
+   20. Com base em todo o conteudo estudado, como a computacao
+       em nuvem pode impactar o futuro da tecnologia e a forma
+       como empresas e pessoas consomem recursos de TI?
+       Desenvolva sua resposta em ate 5 linhas.
+
+
+===============================================================
