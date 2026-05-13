@@ -19,7 +19,7 @@ Antes de começar, garanta que tem instalado na sua máquina:
 Acesse [start.spring.io](https://start.spring.io) e configure assim:
 
 | Campo | Valor |
-|---|---|
+| --- | --- |
 | Project | Maven |
 | Language | Java |
 | Spring Boot | 4.0.6 |
@@ -57,7 +57,7 @@ Além das dependências do Initializr, adicione manualmente no `pom.xml` o **spr
 
 Organize o projeto dentro de `src/main/java/com/aos/productsapi/` da seguinte forma:
 
-```
+```text
 productsapi/
 ├── config/
 │   ├── CorsConfig.java
@@ -478,7 +478,7 @@ docker compose down -v
 A API roda em `http://localhost:8080`. Todos os endpoints ficam sob `/products`.
 
 | Método | Rota | Descrição |
-|---|---|---|
+| --- | --- | --- |
 | GET | `/products` | Lista todos os produtos |
 | GET | `/products/{id}` | Busca um produto pelo ID |
 | POST | `/products` | Cria um novo produto |
@@ -499,7 +499,7 @@ A API roda em `http://localhost:8080`. Todos os endpoints ficam sob `/products`.
 ### Códigos de resposta
 
 | Código | Significado |
-|---|---|
+| --- | --- |
 | 200 | Sucesso |
 | 201 | Produto criado |
 | 204 | Produto deletado |
@@ -537,7 +537,7 @@ curl -X DELETE http://localhost:8080/products/1
 
 Com a aplicação rodando, acesse:
 
-```
+```text
 http://localhost:8080/swagger-ui.html
 ```
 
@@ -549,7 +549,7 @@ Lá você encontra todos os endpoints documentados e pode testá-los direto pelo
 
 O projeto tem um `Dockerfile` com build em múltiplos estágios. Primeiro compila o projeto com Maven e depois copia apenas o `.jar` gerado para uma imagem menor com só o JRE, o que reduz bastante o tamanho final da imagem.
 
-```
+```text
 Dockerfile  →  compila e empacota a aplicação
 docker-compose.yml  →  sobe o MySQL + a API juntos
 ```
