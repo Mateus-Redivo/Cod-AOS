@@ -20,73 +20,53 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-/**
- * REST controller that exposes the product CRUD endpoints under /products.
- */
+// @RestController combina @Controller + @ResponseBody: transforma automaticamente o retorno dos métodos em JSON
 @RestController
+// @RequestMapping define o prefixo de rota para todos os endpoints deste controller
 @RequestMapping("/products")
+// @Tag agrupa os endpoints sob o nome "Products" na documentação do Swagger
 @Tag(name = "Products", description = "CRUD operations for products")
 public class ProductController {
 
     private final ProductService productService;
 
-    /**
-     * Injects the service layer via constructor injection.
-     *
-     * @param productService the product service
-     */
+    // Injeção de dependência via construtor
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
-    /**
-     * Returns all products stored in the database.
-     *
-     * @return list of all products as DTOs
-     */
+    // @Operation descreve o endpoint na documentação do Swagger
     @Operation(summary = "List all products")
     @ApiResponse(responseCode = "200", description = "Products retrieved successfully")
+    // @GetMapping mapeia requisições GET para /products
     @GetMapping
     public List<ProductDTO> getAll() {
         return productService.getAllProducts();
     }
 
-    /**
-     * Returns a single product by its ID.
-     *
-     * @param id the product ID
-     * @return 200 with the product, or 404 if not found
-     */
     @Operation(summary = "Get a product by ID")
     @ApiResponse(responseCode = "200", description = "Product found")
     @ApiResponse(responseCode = "404", description = "Product not found")
+    // @GetMapping("/{id}") mapeia GET /products/{id} — o {id} é um parâmetro dinâmico na URL
     @GetMapping("/{id}")
+    // @PathVariable extrai o valor de {id} da URL e injeta no parâmetro do método
     public ResponseEntity<ProductDTO> getById(@PathVariable Long id) {
         return productService.getProductById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok)             // se encontrou: retorna 200 com o produto no corpo
+                .orElse(ResponseEntity.notFound().build()); // se não encontrou: retorna 404 sem corpo
     }
 
-    /**
-     * Creates a new product.
-     *
-     * @param productDTO the product data from the request body
-     * @return 201 with the created product
-     */
     @Operation(summary = "Create a new product")
     @ApiResponse(responseCode = "201", description = "Product created successfully")
+    // @PostMapping mapeia requisições POST para /products
     @PostMapping
+    // @Valid ativa as validações definidas no ProductDTO antes de executar o método
+    // @RequestBody desserializa o JSON da requisição para um objeto ProductDTO
     public ResponseEntity<ProductDTO> create(@Valid @RequestBody ProductDTO productDTO) {
+        // ResponseEntity.status(201) retorna o HTTP 201 Created com o produto criado no corpo
         return ResponseEntity.status(201).body(productService.createProduct(productDTO));
     }
 
-    /**
-     * Updates an existing product.
-     *
-     * @param id         the ID of the product to update
-     * @param productDTO the new product data from the request body
-     * @return 200 with the updated product, or 404 if not found
-     */
     @Operation(summary = "Update an existing product")
     @ApiResponse(responseCode = "200", description = "Product updated successfully")
     @ApiResponse(responseCode = "404", description = "Product not found")
@@ -97,19 +77,13 @@ public class ProductController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Deletes a product by its ID.
-     *
-     * @param id the ID of the product to delete
-     * @return 204 on success, or 404 if the product does not exist
-     */
     @Operation(summary = "Delete a product")
     @ApiResponse(responseCode = "204", description = "Product deleted successfully")
     @ApiResponse(responseCode = "404", description = "Product not found")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         return productService.deleteProduct(id)
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+                ? ResponseEntity.noContent().build() // retorna 204 No Content se deletou com sucesso
+                : ResponseEntity.notFound().build(); // retorna 404 se o produto não existia
     }
 }

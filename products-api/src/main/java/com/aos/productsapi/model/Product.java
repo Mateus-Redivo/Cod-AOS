@@ -7,46 +7,36 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/**
- * JPA entity representing a product stored in the "product" table.
- */
+// @Entity diz ao JPA que essa classe representa uma tabela no banco de dados
 @Entity
+// @Table define o nome da tabela que será criada/usada no banco
 @Table(name = "product")
 public class Product {
 
-    /** Primary key, auto-incremented by the database. */
+    // @Id marca esse campo como a chave primária da tabela
     @Id
+    // @GeneratedValue com IDENTITY faz o banco gerar o ID automaticamente (auto increment)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Display name of the product. */
+    // @Column configura a coluna: nullable = false significa que o campo é obrigatório no banco
     @Column(nullable = false, length = 100)
     private String name;
 
-    /** Short description of the product. */
     @Column(nullable = false, length = 255)
     private String description;
 
-    /** Price of the product. */
     @Column(nullable = false)
     private double value;
 
-    /** Number of units available in stock. */
     @Column(nullable = false)
     private int quantity;
 
-    /** Required by JPA — not intended for direct use. */
+    // Construtor vazio obrigatório pelo JPA para instanciar a entidade internamente
     public Product() {
     }
 
-    /**
-     * Creates a new Product without an ID (used before persisting).
-     *
-     * @param name        the product name
-     * @param description the product description
-     * @param value       the product price
-     * @param quantity    the available stock quantity
-     */
+    // Construtor usado ao criar um produto novo (sem ID, pois o banco gera)
     public Product(String name, String description, double value, int quantity) {
         this.name = name;
         this.description = description;
