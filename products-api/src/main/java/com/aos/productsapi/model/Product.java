@@ -1,11 +1,6 @@
 package com.aos.productsapi.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 // @Entity diz ao JPA que essa classe representa uma tabela no banco de dados
 @Entity

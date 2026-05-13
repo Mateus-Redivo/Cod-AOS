@@ -11,4 +11,5 @@ import com.aos.productsapi.model.Product;
 // save(), findById(), findAll(), deleteById(), existsById(), entre outros
 // O primeiro tipo genérico é a entidade (Product), o segundo é o tipo do ID (Long)
 public interface ProductRepository extends JpaRepository<Product, Long> {
+    
 }
