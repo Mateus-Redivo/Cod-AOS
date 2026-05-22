@@ -9,7 +9,7 @@ public class ProductMapper {
     private ProductMapper() {}
 
     // Converte uma entidade Product em DTO para ser enviado como resposta da API
-    static ProductDTO toDTO(Product product) {
+    public static ProductDTO toDTO(Product product) {
         return new ProductDTO(
                 product.getId(),
                 product.getName(),
@@ -21,7 +21,7 @@ public class ProductMapper {
 
     // Converte um DTO recebido na requisição em entidade para ser salva no banco
     // O ID não é passado pois ainda não existe — o banco vai gerar na hora do save
-    static Product toEntity(ProductDTO productDTO) {
+    public static Product toEntity(ProductDTO productDTO) {
         return new Product(
                 productDTO.getName(),
                 productDTO.getDescription(),

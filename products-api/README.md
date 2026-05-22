@@ -1,16 +1,14 @@
 # Products API
 
-Uma API REST simples de gerenciamento de produtos, construída com Spring Boot e MySQL. Ela cobre o ciclo completo: criação, listagem, atualização e remoção de produtos, com documentação automática via Swagger e suporte a Docker.
+Uma API REST de gerenciamento de produtos construída com Spring Boot e MySQL. Cobre o ciclo completo de CRUD — criação, listagem, atualização e remoção — com validação de dados, documentação automática via Swagger e suporte a Docker.
 
 ---
 
 ## O que você vai precisar
 
-Antes de começar, garanta que tem instalado na sua máquina:
-
 - **Java 21** (ou superior)
-- **Maven** (o projeto já vem com o wrapper, então você pode usar `./mvnw`)
-- **MySQL 8** — ou **Docker** + **Docker Compose** se quiser subir tudo de uma vez sem instalar o banco manualmente
+- **Maven** — o projeto já vem com o wrapper, então você pode usar `./mvnw` (ou `mvnw.cmd` no Windows)
+- **MySQL 8** — ou **Docker + Docker Compose** para subir tudo de uma vez sem instalar o banco manualmente
 
 ---
 
@@ -28,14 +26,14 @@ Acesse [start.spring.io](https://start.spring.io) e configure assim:
 | Packaging | Jar |
 | Java | 21 |
 
-Depois, adicione as seguintes dependências antes de gerar o projeto:
+Adicione as seguintes dependências antes de gerar o projeto:
 
 - **Spring Web** — para criar os endpoints REST
 - **Spring Data JPA** — para trabalhar com o banco de dados de forma simplificada
 - **Validation** — para validar os dados que chegam na API
 - **MySQL Driver** — para conectar com o MySQL
 - **Spring Boot DevTools** — reinicia a aplicação automaticamente durante o desenvolvimento
-- **Lombok** — elimina o boilerplate de getters, setters e construtores
+- **Lombok** — elimina código repetitivo de getters, setters e construtores (veja `README-LOMBOK.md`)
 
 Clique em **Generate**, extraia o zip e abra a pasta no seu editor.
 
@@ -49,7 +47,7 @@ Além das dependências do Initializr, adicione manualmente no `pom.xml` o **spr
 </dependency>
 ```
 
-> Atenção: o Lombok precisa ser configurado também como annotation processor no plugin do Maven. Veja o `pom.xml` completo do projeto para referência.
+> O Lombok também precisa ser configurado como annotation processor no plugin do Maven. Consulte o `pom.xml` do projeto para ver a configuração completa.
 
 ---
 
@@ -66,6 +64,8 @@ productsapi/
 │   └── ProductController.java
 ├── dto/
 │   └── ProductDTO.java
+├── exception/
+│   └── ValidationExceptionHandler.java
 ├── mapper/
 │   └── ProductMapper.java
 ├── model/
@@ -77,7 +77,18 @@ productsapi/
 └── ProductsApiApplication.java
 ```
 
-Esse padrão de organização separa bem as responsabilidades: o controller recebe as requisições, o service contém a lógica de negócio, o repository fala com o banco e o mapper converte entre a entidade e o DTO.
+Cada pasta tem uma responsabilidade clara:
+
+| Pasta | Responsabilidade |
+| --- | --- |
+| `model` | Representa as tabelas do banco de dados |
+| `dto` | Define o que a API recebe e retorna (com validações) |
+| `mapper` | Converte entre entidade e DTO |
+| `repository` | Faz as operações no banco |
+| `service` | Contém a lógica de negócio |
+| `controller` | Recebe as requisições HTTP e chama o service |
+| `config` | Configurações da aplicação (CORS, Swagger) |
+| `exception` | Trata erros e devolve respostas legíveis |
 
 ---
 
@@ -85,7 +96,7 @@ Esse padrão de organização separa bem as responsabilidades: o controller rece
 
 ### `model/Product.java`
 
-É a entidade que representa a tabela no banco. O JPA vai criar a tabela `product` automaticamente com esses campos:
+A entidade representa a tabela no banco. O JPA cria a tabela `product` automaticamente com esses campos:
 
 ```java
 package com.aos.productsapi.model;
@@ -129,7 +140,7 @@ public class Product {
 
 ### `dto/ProductDTO.java`
 
-O DTO é o que a API expõe para quem consome. Ele carrega as validações dos campos e as anotações do Swagger:
+O DTO é o contrato da API — define o que ela aceita e o que ela devolve. Carrega as validações dos campos e as anotações do Swagger:
 
 ```java
 package com.aos.productsapi.dto;
@@ -157,6 +168,10 @@ public class ProductDTO {
     @PositiveOrZero(message = "Quantity must be zero or greater")
     private int quantity;
 
+    // Construtor vazio necessário para o Jackson desserializar o JSON da requisição
+    public ProductDTO() {}
+
+    // Construtor usado pelo ProductMapper para montar o DTO a partir da entidade
     public ProductDTO(Long id, String name, String description, double value, int quantity) {
         this.id = id;
         this.name = name;
@@ -173,19 +188,19 @@ public class ProductDTO {
 
 ### `mapper/ProductMapper.java`
 
-Converte entre entidade e DTO. Assim o service não precisa saber como montar um do outro:
+Converte entre entidade e DTO. O service não precisa saber como montar um do outro — essa responsabilidade fica aqui:
 
 ```java
 package com.aos.productsapi.mapper;
 
 import com.aos.productsapi.dto.ProductDTO;
 import com.aos.productsapi.model.Product;
-import org.springframework.stereotype.Component;
 
-@Component
-public interface ProductMapper {
+public class ProductMapper {
 
-    static ProductDTO toDTO(Product product) {
+    private ProductMapper() {}
+
+    public static ProductDTO toDTO(Product product) {
         return new ProductDTO(
             product.getId(),
             product.getName(),
@@ -195,7 +210,7 @@ public interface ProductMapper {
         );
     }
 
-    static Product toEntity(ProductDTO dto) {
+    public static Product toEntity(ProductDTO dto) {
         return new Product(
             dto.getName(),
             dto.getDescription(),
@@ -205,6 +220,8 @@ public interface ProductMapper {
     }
 }
 ```
+
+> `ProductMapper` é uma classe utilitária com métodos estáticos, igual às classes `Math` e `Collections` do Java. Por isso o construtor é `private` — ninguém precisa criar uma instância dela.
 
 ---
 
@@ -228,7 +245,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 ### `service/ProductService.java`
 
-O service é onde fica a lógica. Ele usa o repository para persistir os dados e o mapper para converter:
+O service é onde fica a lógica de negócio. Ele usa o repository para acessar o banco e o mapper para converter os dados:
 
 ```java
 package com.aos.productsapi.service;
@@ -286,7 +303,7 @@ public class ProductService {
 
 ### `controller/ProductController.java`
 
-O controller mapeia cada endpoint HTTP para o método correspondente no service:
+O controller mapeia cada rota HTTP para o método correspondente no service:
 
 ```java
 package com.aos.productsapi.controller;
@@ -354,9 +371,50 @@ public class ProductController {
 
 ---
 
+### `exception/ValidationExceptionHandler.java`
+
+Intercepta os erros de validação do `@Valid` e devolve uma resposta JSON limpa e legível em vez da mensagem de erro padrão do Spring:
+
+```java
+package com.aos.productsapi.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+public class ValidationExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            errors.put(fieldError.getField(), fieldError.getDefaultMessage());
+        }
+        return errors;
+    }
+}
+```
+
+Exemplo de resposta quando os dados enviados são inválidos:
+
+```json
+{
+  "name": "Name is required",
+  "value": "Value must be greater than zero"
+}
+```
+
+---
+
 ### `config/CorsConfig.java`
 
-Configura quais origens podem chamar a API. Útil quando você tem um frontend rodando em outra porta:
+Define quais origens (domínios e portas) podem chamar a API. Necessário quando há um frontend rodando em outra porta:
 
 ```java
 package com.aos.productsapi.config;
@@ -417,6 +475,8 @@ Edite o arquivo `src/main/resources/application.properties`:
 ```properties
 spring.application.name=products-api
 
+server.port=8081
+
 spring.datasource.url=jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:productsdb}?createDatabaseIfNotExist=true
 spring.datasource.username=${DB_USER:root}
 spring.datasource.password=${DB_PASSWORD:sua_senha_aqui}
@@ -427,9 +487,10 @@ spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 ```
 
-O `createDatabaseIfNotExist=true` faz o MySQL criar o banco `productsdb` automaticamente se ele não existir. O `ddl-auto=update` faz o JPA criar e atualizar as tabelas conforme as entidades.
-
-Os valores com `${VAR:default}` são variáveis de ambiente com um valor padrão caso a variável não esteja definida.
+- `createDatabaseIfNotExist=true` — cria o banco `productsdb` automaticamente se não existir
+- `ddl-auto=update` — o JPA cria e atualiza as tabelas conforme as entidades
+- `show-sql=true` — exibe as queries SQL no console (útil para aprender o que o JPA está fazendo)
+- Os valores `${VAR:padrão}` usam variáveis de ambiente, com um valor padrão caso a variável não esteja definida
 
 ---
 
@@ -437,27 +498,25 @@ Os valores com `${VAR:default}` são variáveis de ambiente com um valor padrão
 
 ### Opção A: localmente com MySQL instalado
 
-Primeiro, certifique-se de que o MySQL está rodando e que o usuário configurado no `application.properties` tem permissão para criar bancos de dados. Depois, na raiz do projeto:
+Certifique-se de que o MySQL está rodando e que o usuário configurado tem permissão para criar bancos. Depois, na raiz do projeto:
 
 ```bash
+# Linux / Mac
 ./mvnw spring-boot:run
-```
 
-No Windows:
-
-```bash
+# Windows
 mvnw.cmd spring-boot:run
 ```
 
 ### Opção B: com Docker Compose (recomendado)
 
-O jeito mais fácil. Com Docker instalado, só rodar:
+Com Docker instalado, apenas rode:
 
 ```bash
 docker compose up --build
 ```
 
-Isso vai subir dois containers: um com o MySQL 8 e outro com a própria API. O container da API espera o banco ficar saudável antes de iniciar, então não tem problema de conexão na largada.
+Isso sobe dois containers: um com MySQL 8 e outro com a API. O container da API aguarda o banco ficar saudável antes de iniciar.
 
 Para parar tudo:
 
@@ -465,7 +524,7 @@ Para parar tudo:
 docker compose down
 ```
 
-Para parar e remover os dados do banco também:
+Para parar e apagar os dados do banco também:
 
 ```bash
 docker compose down -v
@@ -475,15 +534,15 @@ docker compose down -v
 
 ## Endpoints disponíveis
 
-A API roda em `http://localhost:8080`. Todos os endpoints ficam sob `/products`.
+A API roda em `http://localhost:8081`. Todos os endpoints ficam sob `/products`.
 
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| GET | `/products` | Lista todos os produtos |
-| GET | `/products/{id}` | Busca um produto pelo ID |
-| POST | `/products` | Cria um novo produto |
-| PUT | `/products/{id}` | Atualiza um produto existente |
-| DELETE | `/products/{id}` | Remove um produto |
+| Método | Rota | O que faz | Resposta |
+| --- | --- | --- | --- |
+| GET | `/products` | Lista todos os produtos | 200 |
+| GET | `/products/{id}` | Busca um produto pelo ID | 200 / 404 |
+| POST | `/products` | Cria um novo produto | 201 |
+| PUT | `/products/{id}` | Atualiza um produto existente | 200 / 404 |
+| DELETE | `/products/{id}` | Remove um produto | 204 / 404 |
 
 ### Exemplo de corpo para POST e PUT
 
@@ -502,9 +561,9 @@ A API roda em `http://localhost:8080`. Todos os endpoints ficam sob `/products`.
 | --- | --- |
 | 200 | Sucesso |
 | 201 | Produto criado |
-| 204 | Produto deletado |
+| 204 | Produto deletado (sem corpo na resposta) |
+| 400 | Dados inválidos — a resposta indica qual campo está errado |
 | 404 | Produto não encontrado |
-| 400 | Dados inválidos na requisição |
 
 ---
 
@@ -512,23 +571,23 @@ A API roda em `http://localhost:8080`. Todos os endpoints ficam sob `/products`.
 
 ```bash
 # Listar todos os produtos
-curl -X GET http://localhost:8080/products
+curl -X GET http://localhost:8081/products
 
 # Buscar produto por ID
-curl -X GET http://localhost:8080/products/1
+curl -X GET http://localhost:8081/products/1
 
 # Criar produto
-curl -X POST http://localhost:8080/products \
+curl -X POST http://localhost:8081/products \
   -H "Content-Type: application/json" \
   -d '{"name": "Teclado", "description": "Teclado mecânico RGB", "value": 299.90, "quantity": 25}'
 
 # Atualizar produto
-curl -X PUT http://localhost:8080/products/1 \
+curl -X PUT http://localhost:8081/products/1 \
   -H "Content-Type: application/json" \
   -d '{"name": "Teclado Pro", "description": "Teclado mecânico RGB sem fio", "value": 399.90, "quantity": 15}'
 
 # Deletar produto
-curl -X DELETE http://localhost:8080/products/1
+curl -X DELETE http://localhost:8081/products/1
 ```
 
 ---
@@ -538,7 +597,7 @@ curl -X DELETE http://localhost:8080/products/1
 Com a aplicação rodando, acesse:
 
 ```text
-http://localhost:8080/swagger-ui.html
+http://localhost:8081/swagger-ui.html
 ```
 
 Lá você encontra todos os endpoints documentados e pode testá-los direto pelo navegador, sem precisar de nenhuma ferramenta externa.
@@ -547,19 +606,19 @@ Lá você encontra todos os endpoints documentados e pode testá-los direto pelo
 
 ## Docker (detalhes)
 
-O projeto tem um `Dockerfile` com build em múltiplos estágios. Primeiro compila o projeto com Maven e depois copia apenas o `.jar` gerado para uma imagem menor com só o JRE, o que reduz bastante o tamanho final da imagem.
+O projeto tem um `Dockerfile` com build em múltiplos estágios: primeiro compila com Maven, depois copia apenas o `.jar` gerado para uma imagem menor com só o JRE, reduzindo bastante o tamanho final.
 
 ```text
-Dockerfile  →  compila e empacota a aplicação
-docker-compose.yml  →  sobe o MySQL + a API juntos
+Dockerfile         →  compila e empacota a aplicação
+docker-compose.yml →  sobe o MySQL + a API juntos
 ```
 
-Se quiser rodar só a API manualmente (sem o compose), lembre de passar as variáveis de ambiente do banco:
+Para rodar só a API manualmente (sem o Compose), passe as variáveis de ambiente do banco:
 
 ```bash
 docker build -t products-api .
 
-docker run -p 8080:8080 \
+docker run -p 8081:8081 \
   -e DB_HOST=localhost \
   -e DB_PORT=3306 \
   -e DB_NAME=productsdb \
@@ -575,9 +634,9 @@ docker run -p 8080:8080 \
 - **Java 21**
 - **Spring Boot 4.0.6**
 - **Spring Data JPA** + **Hibernate**
-- **Spring Validation** (Bean Validation / Jakarta)
+- **Spring Validation** (Jakarta Bean Validation)
 - **MySQL 8**
 - **springdoc-openapi 3.0.2** (Swagger UI)
-- **Lombok**
+- **Lombok** (configurado — veja `README-LOMBOK.md`)
 - **Docker** + **Docker Compose**
 - **Maven**
