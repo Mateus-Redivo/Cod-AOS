@@ -36,6 +36,9 @@ public class ProductDTO {
     @Schema(description = "Available stock quantity", example = "50")
     private int quantity;
 
+    // Construtor vazio necessário para o Jackson conseguir desserializar o JSON da requisição
+    public ProductDTO() {}
+
     // Construtor usado pelo ProductMapper para montar o DTO a partir da entidade
     public ProductDTO(Long id, String name, String description, double value, int quantity) {
         this.id = id;

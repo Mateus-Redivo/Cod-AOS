@@ -4,18 +4,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * Global CORS configuration for the application.
- * Defines which origins, methods, and headers are permitted to access the API.
- */
+// Configuração global de CORS: define quais origens, métodos e headers podem acessar a API
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
-    /**
-     * Registers CORS mappings for all product endpoints.
-     *
-     * @param registry the CORS registry to configure
-     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/products/**")

@@ -1,13 +1,12 @@
 package com.aos.productsapi.mapper;
 
-import org.springframework.stereotype.Component;
-
 import com.aos.productsapi.dto.ProductDTO;
 import com.aos.productsapi.model.Product;
 
-// @Component registra essa interface no contexto do Spring (necessário para injeção de dependência)
-@Component
-public interface ProductMapper {
+// Classe utilitária com métodos estáticos — não deve ser instanciada
+public class ProductMapper {
+
+    private ProductMapper() {}
 
     // Converte uma entidade Product em DTO para ser enviado como resposta da API
     static ProductDTO toDTO(Product product) {
