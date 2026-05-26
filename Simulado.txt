@@ -1,0 +1,188 @@
+--------------------------------------------------------------------------------
+Questão 1 — Padrão DTO e Mapper
+--------------------------------------------------------------------------------
+
+Imagine que você está desenvolvendo uma API de gerenciamento de usuários. A
+entidade User no banco de dados contém campos sensíveis como senha (hash), salt,
+tentativas de login e flags internas de controle. Um desenvolvedor júnior da
+equipe propõe retornar diretamente o objeto User nas respostas da API para
+simplificar o código.
+
+Explique por que essa abordagem representa um problema de segurança e de
+acoplamento arquitetural. Em seguida, descreva como o padrão DTO (Data Transfer
+Object) resolveria essa situação, apresentando um exemplo de como um UserDTO
+difere da entidade User. Por fim, explique o papel do padrão Mapper nesse fluxo
+e como ele pode ser implementado manualmente ou com o auxílio de bibliotecas
+como o MapStruct.
+
+
+
+--------------------------------------------------------------------------------
+Questão 2 — OpenAPI e SpringDoc
+--------------------------------------------------------------------------------
+
+Em uma equipe de desenvolvimento com frontend e backend separados, o time de
+frontend frequentemente reclama que a documentação da API está desatualizada:
+endpoints que não existem mais ainda aparecem na documentação, e novos endpoints
+não estão documentados. O tech lead decide adotar o SpringDoc com a especificação
+OpenAPI.
+
+Explique o que é a especificação OpenAPI e qual problema ela padroniza. Descreva
+como o SpringDoc é capaz de gerar a documentação automaticamente a partir das
+anotações existentes no código Java Spring Boot. Por fim, compare essa abordagem
+com a manutenção de documentação externa (como um arquivo Word ou uma wiki
+manual), discutindo por que a documentação integrada ao código tende a ser mais
+confiável e sustentável em projetos com evolução contínua.
+
+
+
+--------------------------------------------------------------------------------
+Questão 3 — Optional<T> no Java 8
+--------------------------------------------------------------------------------
+
+Um desenvolvedor está refatorando um método de repositório que busca um produto
+pelo seu código de barras. O código original retorna null quando o produto não é
+encontrado, e ao longo do sistema há diversas verificações if (produto != null)
+espalhadas. Outra desenvolvedora da equipe sugere substituir o retorno por
+Optional<Produto>.
+
+Explique o que é o Optional<T> e qual problema ele torna explícito na assinatura
+do método. Demonstre como operações encadeadas como .map() e .orElse() podem
+substituir verificações manuais de null. Por fim, discuta situações em que o uso
+de Optional é apropriado (como retornos de métodos de busca) e situações em que
+é considerado má prática ou exagero, como utilizá-lo em campos de entidades JPA
+ou como parâmetros de métodos.
+
+
+
+--------------------------------------------------------------------------------
+Questão 4 — Spring Data JPA e JpaRepository
+--------------------------------------------------------------------------------
+
+Um estudante, ao ver o código de um repositório Spring Data JPA, fica surpreso:
+a interface ProdutoRepository estende JpaRepository<Produto, Long> e não possui
+nenhum método implementado — apenas declarações como findByNome(String nome) e
+findByPrecoLessThan(Double preco). Mesmo assim, o código funciona perfeitamente
+em tempo de execução.
+
+Explique o que acontece nos bastidores: como o Spring Data JPA fornece
+implementações para esses métodos sem que o desenvolvedor escreva uma linha de
+SQL ou JDBC. Descreva o mecanismo de derivação de queries a partir do nome do
+método, explicando as convenções utilizadas. Além disso, mencione quando é
+necessário recorrer à anotação @Query para queries mais complexas que não podem
+ser expressas apenas pela nomenclatura.
+
+
+
+--------------------------------------------------------------------------------
+Questão 5 — Idempotência em REST
+--------------------------------------------------------------------------------
+
+Durante uma revisão de código, um desenvolvedor percebe que o sistema de
+pagamentos faz chamadas ao endpoint POST /pagamentos para processar uma cobrança.
+Devido a instabilidades de rede, o cliente às vezes reenvia a requisição ao não
+receber resposta. Isso resulta em cobranças duplicadas. O desenvolvedor argumenta
+que "todos os métodos HTTP são iguais nesse sentido", mas o tech lead discorda.
+
+Explique o conceito de idempotência no contexto dos métodos HTTP e por que ele é
+fundamental para sistemas distribuídos confiáveis. Classifique os métodos GET,
+POST, PUT, PATCH e DELETE quanto à idempotência, justificando cada classificação.
+Por fim, descreva estratégias práticas para tornar operações POST idempotentes
+quando necessário, como o uso de chaves de idempotência (idempotency keys).
+
+
+
+--------------------------------------------------------------------------------
+Questão 6 — Injeção de Dependência no Spring
+--------------------------------------------------------------------------------
+
+Ao analisar um projeto Spring Boot legado, um desenvolvedor encontra três estilos
+diferentes de injeção de dependência: alguns serviços usam @Autowired diretamente
+no campo, outros usam @Autowired no setter, e os mais recentes utilizam injeção
+via construtor sem nenhuma anotação. O desenvolvedor questiona: "Por que não
+padronizar em @Autowired no campo? É mais simples."
+
+Explique o que é injeção de dependência e qual problema de design ela resolve.
+Descreva as diferenças técnicas e conceituais entre as três formas (campo, setter
+e construtor). Argumente por que a injeção via construtor é considerada a
+abordagem mais recomendada pelas boas práticas de orientação a objetos, citando
+aspectos como testabilidade, imutabilidade e detecção de dependências circulares.
+
+
+
+--------------------------------------------------------------------------------
+Questão 7 — Códigos de Status HTTP
+--------------------------------------------------------------------------------
+
+Uma API de e-commerce foi auditada e identificou-se que todos os endpoints,
+independentemente do resultado, retornam sempre o status 200 OK — inclusive
+quando um produto não é encontrado (retornando {"erro": "Produto não encontrado"}
+com status 200), quando os dados de entrada são inválidos, ou quando um recurso
+é criado com sucesso. O time de frontend está tendo dificuldades para tratar os
+erros corretamente.
+
+Explique a diferença semântica entre os códigos de status 200, 201, 204, 400 e
+404, indicando a situação correta de uso de cada um. Em seguida, discuta os
+problemas concretos causados pela prática de retornar sempre 200 — tanto para os
+consumidores da API quanto para ferramentas de monitoramento, proxies e caches —
+e por que isso viola os princípios RESTful.
+
+
+
+--------------------------------------------------------------------------------
+Questão 8 — CORS e Same-Origin Policy
+--------------------------------------------------------------------------------
+
+Uma desenvolvedora está criando um frontend React rodando em localhost:3000 que
+consome uma API Spring Boot em localhost:8081. Ao fazer a primeira requisição, o
+navegador bloqueia a chamada com o erro: "Access to fetch at
+'http://localhost:8081/api/produtos' from origin 'http://localhost:3000' has been
+blocked by CORS policy." Ela fica confusa porque o backend está rodando e
+responde normalmente pelo Postman.
+
+Explique por que o Postman não sofre o bloqueio, mas o navegador sim, descrevendo
+o conceito de Same-Origin Policy e sua importância para a segurança web. Em
+seguida, explique como o mecanismo CORS funciona, detalhando o papel das
+requisições preflight (OPTIONS). Por fim, descreva como configurar o Spring Boot
+para habilitar CORS de forma segura, distinguindo entre uma configuração
+permissiva (allowedOrigins("*")) e uma configuração restritiva por origens
+específicas.
+
+
+--------------------------------------------------------------------------------
+Questão 9 — ORM, JPA e Anotações
+--------------------------------------------------------------------------------
+
+Uma desenvolvedora com experiência em SQL puro está sendo integrada a um projeto
+que utiliza JPA com Spring Data. Ao ver a classe Pedido anotada com @Entity, @Id
+e @GeneratedValue, ela questiona: "Por que usar tudo isso se eu poderia escrever
+um INSERT simples e ter controle total do que acontece?"
+
+Explique o conceito de ORM (Object-Relational Mapping) e o problema de
+impedância que ele resolve. Descreva o papel das anotações @Entity, @Id e
+@GeneratedValue no mapeamento entre o objeto Java e a tabela do banco de dados.
+Por fim, apresente um comparativo honesto entre JPA/ORM e SQL puro, citando as
+vantagens do ORM (produtividade, portabilidade) e suas desvantagens reais (N+1,
+opacidade das queries), reconhecendo que cada abordagem tem seu lugar.
+
+
+
+--------------------------------------------------------------------------------
+Questão 10 — Validação e @RestControllerAdvice
+--------------------------------------------------------------------------------
+
+Em uma API de cadastro de clientes, cada endpoint de criação e atualização possui
+seu próprio bloco try/catch que verifica manualmente se os campos obrigatórios
+foram preenchidos, se o e-mail tem formato válido e se a idade é positiva. O
+código está duplicado em cinco endpoints diferentes. Um desenvolvedor sugere usar
+Bean Validation com @NotBlank, @Email e @Positive junto com um @RestControllerAdvice
+global.
+
+Explique como o mecanismo de validação do Spring Boot funciona: qual é o papel
+das anotações de validação nos DTOs e qual é a função da anotação @Valid no
+Controller para ativar essa validação. Em seguida, descreva como o
+@RestControllerAdvice permite centralizar o tratamento de exceções de validação
+(como MethodArgumentNotValidException), e argumente por que essa abordagem é
+superior à duplicação de try/catch, considerando manutenibilidade, consistência
+das respostas de erro e separação de responsabilidades.
+
