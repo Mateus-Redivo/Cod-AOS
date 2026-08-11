@@ -65,7 +65,13 @@ productsapi/
 ├── dto/
 │   └── ProductDTO.java
 ├── exception/
-│   └── ValidationExceptionHandler.java
+│   ├── ApiError.java
+│   ├── ResourceNotFoundException.java
+│   └── handler/
+│       ├── ValidationExceptionHandler.java
+│       ├── RequestExceptionHandler.java
+│       ├── ResourceExceptionHandler.java
+│       └── GlobalExceptionHandler.java
 ├── mapper/
 │   └── ProductMapper.java
 ├── model/
@@ -88,7 +94,8 @@ Cada pasta tem uma responsabilidade clara:
 | `service` | Contém a lógica de negócio |
 | `controller` | Recebe as requisições HTTP e chama o service |
 | `config` | Configurações da aplicação (CORS, Swagger) |
-| `exception` | Trata erros e devolve respostas legíveis |
+| `exception` | Define o formato de erro da API |
+| `exception/handler` | Converte cada tipo de exceção em uma resposta HTTP |
 
 ---
 
@@ -371,44 +378,99 @@ public class ProductController {
 
 ---
 
-### `exception/ValidationExceptionHandler.java`
+### `exception/` — o tratamento de erros
 
-Intercepta os erros de validação do `@Valid` e devolve uma resposta JSON limpa e legível em vez da mensagem de erro padrão do Spring:
+Sem tratamento, cada falha sai de um jeito diferente: o erro de validação em um formato, o JSON malformado em outro, e uma exceção não prevista devolve a página de erro do servidor com a stack trace inteira. O pacote `exception` existe para que **todo** erro da API saia no mesmo formato.
+
+São dois arquivos de apoio e quatro handlers, um para cada tipo de erro:
+
+```text
+exception/
+├── ApiError.java                 → o corpo padrão de erro
+├── ResourceNotFoundException.java → a exceção de "produto não existe"
+└── handler/
+    ├── ValidationExceptionHandler.java → dados inválidos       (400)
+    ├── RequestExceptionHandler.java    → requisição malformada (400, 404, 405, 415)
+    ├── ResourceExceptionHandler.java   → produto e banco       (404, 409)
+    └── GlobalExceptionHandler.java     → qualquer imprevisto   (500)
+```
+
+#### `ApiError` — o corpo padrão de erro
+
+Um `record` (classe imutável, em que o compilador já gera construtor e getters) com os campos que todo erro precisa ter:
 
 ```java
-package com.aos.productsapi.exception;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-@RestControllerAdvice
-public class ValidationExceptionHandler {
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new LinkedHashMap<>();
-        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
-            errors.put(fieldError.getField(), fieldError.getDefaultMessage());
-        }
-        return errors;
-    }
+public record ApiError(
+        LocalDateTime timestamp,           // quando falhou
+        int status,                        // 400, 404, 500...
+        String error,                      // "Bad Request", "Not Found"...
+        String message,                    // explicação legível
+        String path,                       // rota que falhou
+        Map<String, String> fieldErrors) { // campo -> mensagem, só na validação
 }
 ```
 
-Exemplo de resposta quando os dados enviados são inválidos:
+O `@JsonInclude(NON_NULL)` na classe faz o Jackson omitir os campos nulos, então `fieldErrors` só aparece no JSON quando existe algo para mostrar.
+
+#### `ResourceNotFoundException` — a exceção do produto inexistente
+
+Uma `RuntimeException` própria. Com ela, o controller escreve só o caminho feliz:
+
+```java
+// antes: o controller montava o 404 na mão, com corpo vazio
+return productRepository.findById(id)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+
+// agora: o controller lança, e o handler transforma em 404 com corpo ApiError
+return productRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + id));
+```
+
+#### Os quatro handlers
+
+Cada classe é um `@RestControllerAdvice` — o Spring chama ela sozinho quando a exceção correspondente é lançada em qualquer controller. Estão separadas por tipo de erro para ficar fácil achar (e alterar) cada caso:
+
+| Classe | `@Order` | Trata | Códigos |
+| --- | --- | --- | --- |
+| `ValidationExceptionHandler` | 1 | Campo reprovado no `@Valid` | 400 |
+| `RequestExceptionHandler` | 2 | JSON quebrado, id não numérico, rota, verbo ou `Content-Type` errado | 400, 404, 405, 415 |
+| `ResourceExceptionHandler` | 3 | Produto inexistente e recusa do banco | 404, 409 |
+| `GlobalExceptionHandler` | último | Qualquer exceção não prevista | 500 |
+
+O `@Order` define quem tem prioridade quando mais de um handler poderia atender. Ele é necessário porque o `GlobalExceptionHandler` trata `Exception`, a superclasse de todas — sem a ordem definida, ele poderia pegar um erro de validação primeiro e transformar um 400 bem explicado em um 500 genérico.
+
+#### Exemplos de resposta
+
+Erro de validação — `POST /products` com `{"name": "", "value": -10}`:
 
 ```json
 {
-  "name": "Name is required",
-  "value": "Value must be greater than zero"
+  "timestamp": "2026-08-10T14:32:07",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Validation failed for the request body",
+  "path": "/products",
+  "fieldErrors": {
+    "name": "Name is required",
+    "value": "Value must be greater than zero"
+  }
 }
 ```
+
+Produto inexistente — `GET /products/99`:
+
+```json
+{
+  "timestamp": "2026-08-10T14:33:12",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Product not found with id 99",
+  "path": "/products/99"
+}
+```
+
+> **Duas regras seguidas em todos os handlers.** A mensagem original da exceção nunca é copiada para a resposta: ela costuma trazer nomes de tabelas, SQL e caminhos de arquivo — informação valiosa para quem quer atacar a aplicação. Já os erros 500 são registrados com `log.error(..., ex)`, o que guarda a stack trace no log do servidor, que é onde ela deve ficar.
 
 ---
 
@@ -562,8 +624,14 @@ A API roda em `http://localhost:8081`. Todos os endpoints ficam sob `/products`.
 | 200 | Sucesso |
 | 201 | Produto criado |
 | 204 | Produto deletado (sem corpo na resposta) |
-| 400 | Dados inválidos — a resposta indica qual campo está errado |
-| 404 | Produto não encontrado |
+| 400 | Dados inválidos ou requisição malformada — a resposta indica o campo ou o parâmetro com problema |
+| 404 | Produto ou rota não encontrado |
+| 405 | Verbo HTTP não suportado por essa rota |
+| 409 | A operação conflita com uma restrição do banco |
+| 415 | `Content-Type` não suportado — envie `application/json` |
+| 500 | Falha inesperada no servidor |
+
+Todos os erros (4xx e 5xx) devolvem o mesmo corpo `ApiError`, descrito na seção [`exception/`](#exception--o-tratamento-de-erros).
 
 ---
 
