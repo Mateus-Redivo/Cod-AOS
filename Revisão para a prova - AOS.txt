@@ -1,0 +1,296 @@
+======================================================================
+RESUMO
+======================================================================
+
+C = Controller: recebe, aciona o Service, devolve status e corpo
+S = Service: regra de negócio; lança exceção; não conhece HTTP
+R = Repository: acesso ao banco
+M = Mapper: converte Entity e DTO
+DTO = o contrato da API
+
+a requisição desce até o banco e a resposta sobe pelo mesmo caminho
+código que sobe e funciona pode estar na camada errada
+
+======================================================================
+EXERCÍCIOS
+======================================================================
+
+----------------------------------------------------------------------
+PARTE 1. Quem faz o quê?
+----------------------------------------------------------------------
+
+CONTROLLER    SERVICE    REPOSITORY    MAPPER
+
+a) devolver 201 Created
+b) conferir se o CPF já está cadastrado
+c) fazer o SELECT no banco
+d) transformar Pedido em PedidoDTO
+e) ler o {id} que vem na URL
+f) lançar PedidoNaoEncontradoException
+
+Em qual camada está este método? Por quê?
+@PostMapping
+public ResponseEntity<PedidoDTO> criar(@Valid @RequestBody PedidoDTO dto) {
+    return ResponseEntity.status(201).body(pedidoService.criar(dto));
+}
+
+
+----------------------------------------------------------------------
+PARTE 2. O DTO e o que sai na API
+----------------------------------------------------------------------
+
+Usuario: id, login, email, senha
+O usuário 1 é ana, ana@mail.com, senha 1234
+
+public class UsuarioDTO {
+    private Long id;
+    private String login;
+    private String email;
+    public UsuarioDTO(Long id, String login) { ... }
+}
+
+return new UsuarioDTO(u.getId(), u.getLogin());
+
+1. O que a API devolve para GET /usuarios/1?
+2. Por que a senha nunca aparece?
+3. Por que o Service devolve DTO e não a entidade?
+
+
+----------------------------------------------------------------------
+PARTE 3. Validação e erros
+----------------------------------------------------------------------
+
+QUADRO 1
+public class LivroDTO {
+    @NotBlank private String titulo;
+    @Min(1)   private Integer paginas;
+}
+@PostMapping
+criar(@Valid @RequestBody LivroDTO dto)
+
+POST  {"titulo": "", "paginas": 120}
+Qual a resposta? O Service chega a rodar?
+
+QUADRO 2
+Service:    repo.findById(id).map(Mapper::toDTO)
+                .orElseThrow(() -> new LivroNaoEncontradoException(...))
+Controller: return ResponseEntity.ok(service.buscar(id));
+Handler:    @RestControllerAdvice, @ExceptionHandler -> 404 + {"erro": mensagem}
+
+GET /livros/9   (o livro 9 não existe)
+O que a API devolve?
+
+
+----------------------------------------------------------------------
+PARTE 4. Onde fica a regra?
+----------------------------------------------------------------------
+
+A) Regra: nenhum pedido pode valer menos de 10.
+public PedidoDTO criar(PedidoDTO dto) {
+    Pedido salvo = repo.save(Mapper.toEntity(dto));
+    if (salvo.getTotal() < 10) {
+        throw new RegraNegocioException("Pedido mínimo é 10");
+    }
+    return Mapper.toDTO(salvo);
+}
+   Qual o problema? Como consertar?
+
+B) Regra: não pode haver dois clientes com o mesmo e-mail.
+   Onde ela fica? Por que não no DTO nem no Controller?
+
+C) @GetMapping
+   public List<Produto> listar() { return produtoRepository.findAll(); }
+   Quais são os dois problemas?
+
+
+----------------------------------------------------------------------
+PARTE 5. Do JSON ao banco, ida e volta
+----------------------------------------------------------------------
+
+POST /clientes   {"nome": "Ana", "email": "ana@mail.com"}
+
+Ordene os passos de 1 a 7:
+( ) Repository grava no banco
+( ) Spring lê o JSON e monta o ClienteDTO
+( ) Controller chama clienteService.criar(dto)
+( ) Mapper converte o ClienteDTO em Cliente (entidade)
+( ) Mapper converte a entidade gravada em ClienteDTO
+( ) Controller devolve 201 e o DTO
+( ) Service confere se o e-mail já existe
+
+1. Em que ponto atua o @Valid?
+2. Onde nasce o 409 se o e-mail já existir?
+3. Nesse caso, quais passos NÃO acontecem?
+
+
+----------------------------------------------------------------------
+PARTE 6. Cace o erro de arquitetura
+----------------------------------------------------------------------
+
+@RestController
+public class ProdutoController {
+    @Autowired ProdutoRepository repo;
+
+    @PostMapping("/produtos")
+    public Produto criar(@RequestBody Produto p) {
+        if (p.getPreco() <= 0) {
+            throw new RuntimeException("preço inválido");
+        }
+        return repo.save(p);
+    }
+}
+
+1. Marque 4 problemas.
+2. Que camadas faltam?
+3. Como a validação do preço fica sem o if?
+
+
+----------------------------------------------------------------------
+PARTE 7. Simulado: escreva e responda
+----------------------------------------------------------------------
+
+1. Escreva a assinatura do método do Service que busca
+   um cliente por id e devolve ClienteDTO.
+   O que ele faz se o id não existir?
+
+2. Escreva as duas anotações do DTO para:
+   nome obrigatório e idade de 0 a 120.
+
+3. Qual status HTTP?
+   a) cadastrou   b) não achou
+   c) dados inválidos   d) e-mail repetido
+
+4. V ou F: o handler global conhece o Repository.
+
+5. Desenhe as camadas e as setas de quem chama quem.
+
+
+----------------------------------------------------------------------
+PARTE 8. Cartão de saída
+----------------------------------------------------------------------
+
+V ou F? Se for falsa, corrija.
+
+I.   O @Valid no parâmetro do Controller é o que faz o Spring
+     aplicar as validações do DTO.
+II.  O Service pode devolver a entidade ao Controller, desde que
+     o Controller não altere nenhum campo.
+III. Uma exceção do Service pode virar resposta HTTP num
+     @RestControllerAdvice, sem try/catch no Controller.
+IV.  O Controller só conhece o Service; o Service é quem conhece
+     o Repository.
+
+Em uma frase: por que o Service não devolve ResponseEntity?
+
+
+======================================================================
+GABARITO
+======================================================================
+
+----------------------------------------------------------------------
+PARTE 1
+----------------------------------------------------------------------
+
+a) Controller   b) Service   c) Repository
+d) Mapper       e) Controller   f) Service
+
+O método é do CONTROLLER: recebe a requisição (@PostMapping,
+@RequestBody), aciona o Service e traduz o retorno em status (201) e
+corpo. Não decide regra e não acessa o banco.
+
+----------------------------------------------------------------------
+PARTE 2
+----------------------------------------------------------------------
+
+1. {"id": 1, "login": "ana", "email": null}
+   O DTO tem o campo email, mas o construtor usado só preenche id e
+   login, então email fica null e aparece como null no JSON.
+2. A senha não existe no DTO, então nunca sai.
+3. O contrato da API é o DTO. Devolver a entidade expõe campos que a
+   API não devia mostrar, mesmo que o Controller não altere nada.
+
+----------------------------------------------------------------------
+PARTE 3
+----------------------------------------------------------------------
+
+Quadro 1: resposta 400.
+Com @Valid, o Spring confere o DTO antes de chamar o método; o título
+em branco viola @NotBlank, então o Service nem roda.
+
+Quadro 2: HTTP 404 com o corpo {"erro": "..."}.
+O orElseThrow lança a exceção dentro do Service, o Controller nem
+chega ao ResponseEntity.ok, e o handler global converte a exceção em
+404. O Service só sinaliza o problema de negócio; quem traduz em
+status é a camada web.
+
+----------------------------------------------------------------------
+PARTE 4
+----------------------------------------------------------------------
+
+A) A regra é conferida DEPOIS do save: o pedido inválido já foi
+   gravado quando o erro sai. Mover o if para antes do save.
+
+B) No SERVICE: consulta o Repository antes de salvar e lança exceção
+   se o e-mail existir. A validação do DTO só enxerga o dado que
+   chegou; o Controller não acessa o Repository.
+
+C) O Controller fala direto com o Repository (pula o Service) e
+   devolve a entidade (sem DTO). Correção: o Controller chama o
+   Service, e o Service devolve List<ProdutoDTO> montada com o Mapper.
+
+----------------------------------------------------------------------
+PARTE 5
+----------------------------------------------------------------------
+
+Ordem:
+ 1 Spring lê o JSON e monta o DTO
+ 2 Controller chama o Service
+ 3 Service confere o e-mail
+ 4 Mapper converte DTO em entidade
+ 5 Repository grava
+ 6 Mapper converte a entidade em DTO
+ 7 Controller devolve 201 e o DTO
+
+1. ANTES de o Controller rodar: o Spring valida o DTO ao montar o
+   parâmetro.
+2. No SERVICE (passo 3): ele lança a exceção e o handler global
+   converte em 409.
+3. Os passos 4 a 7: não converte, não grava e não devolve 201.
+
+----------------------------------------------------------------------
+PARTE 6
+----------------------------------------------------------------------
+
+1. (a) O Controller usa o Repository direto.
+   (b) A regra (if do preço) está no Controller.
+   (c) Entidade recebida e devolvida, sem DTO.
+   (d) RuntimeException genérica vira 500 em vez de um status certo.
+2. Service e Mapper (e o DTO).
+3. @Positive no campo preco do DTO e @Valid no parâmetro do
+   Controller: valor inválido devolve 400 antes de o Service rodar.
+
+----------------------------------------------------------------------
+PARTE 7
+----------------------------------------------------------------------
+
+1. public ClienteDTO buscar(Long id)
+   Se o id não existir, lança ClienteNaoEncontradoException (por
+   exemplo, com orElseThrow), e o handler converte em 404.
+2. @NotBlank private String nome;
+   @Min(0) @Max(120) private Integer idade;
+3. a) 201   b) 404   c) 400   d) 409
+4. FALSO. O handler só conhece as exceções, não o Repository.
+5. Controller -> Service -> Repository, com o Service também usando
+   o Mapper. O Controller não chama o Repository.
+
+----------------------------------------------------------------------
+PARTE 8
+----------------------------------------------------------------------
+
+I: V.
+II: F (o contrato da API é o DTO).
+III: V.
+IV: V.
+
+O Service não conhece HTTP: ele só sinaliza o problema de negócio
+(exceção); status e corpo são da camada web.
