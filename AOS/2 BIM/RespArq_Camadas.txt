@@ -1,0 +1,845 @@
+========================================================
+  RESPOSTAS - ARQUITETURA EM CAMADAS
+  (Controller, Service, Repository, Entity, DTO, JPA,
+   Bean Validation, Lombok, Swagger/OpenAPI, DI)
+========================================================
+
+--------------------------------------------------------------
+QUESTAO 1
+--------------------------------------------------------------
+Fluxo completo de uma requisicao POST /livros:
+
+1. O cliente envia a requisicao HTTP POST /livros com um corpo
+   JSON (titulo, autor, etc.). O Spring intercepta a requisicao
+   e direciona para o metodo do Controller mapeado para essa
+   rota.
+
+2. CONTROLLER (LivroController):
+   - Recebe o JSON anotado com @RequestBody e o desserializa
+     em um objeto LivroDTO.
+   - Aplica @Valid para acionar as validacoes do Bean Validation
+     declaradas no DTO.
+   - Repassa o DTO para o Service.
+   - Papel: porta de entrada HTTP. Cuida de rotas, status codes,
+     desserializacao, validacao de entrada e formato da resposta.
+     Nao contem regra de negocio.
+
+3. SERVICE (LivroService):
+   - Recebe o DTO.
+   - Aplica regras de negocio (ex.: verificar se o ISBN ja existe,
+     calcular campos derivados, validar regras de dominio).
+   - Converte o DTO em Entity, normalmente usando um Mapper.
+   - Chama o Repository para persistir.
+   - Converte a Entity salva de volta em DTO para retornar.
+   - Papel: orquestrar regras de negocio e coordenar as demais
+     camadas. E o nucleo da aplicacao.
+
+4. ENTITY (Livro):
+   - Classe anotada com @Entity que representa a tabela no banco.
+   - Possui anotacoes JPA (@Id, @GeneratedValue, @Column).
+   - Papel: espelhar a estrutura da tabela e ser o objeto que o
+     JPA usa para mapeamento objeto-relacional.
+
+5. REPOSITORY (LivroRepository):
+   - Interface que estende JpaRepository<Livro, Long>.
+   - O Spring Data JPA gera dinamicamente a implementacao com
+     metodos CRUD prontos (save, findById, findAll, etc.).
+   - Executa save() que dispara um INSERT no banco.
+   - Papel: acesso a dados. Isola a aplicacao do mecanismo de
+     persistencia.
+
+6. DTO (LivroDTO):
+   - Objeto de transferencia de dados entre Controller e cliente.
+   - Contem somente os campos relevantes para a operacao e suas
+     validacoes (Bean Validation).
+   - Papel: desacoplar a representacao externa (API) da
+     representacao interna (Entity), protegendo o modelo de
+     dominio e evitando vazamento de informacoes sensiveis.
+
+7. RESPOSTA:
+   - O Controller devolve um LivroDTO (ou ResponseEntity<LivroDTO>)
+     que o Spring serializa para JSON e envia ao cliente, em geral
+     com status 201 Created.
+
+Resumo: Controller (entrada/saida HTTP) -> Service (regras) ->
+Repository (persistencia) -> Banco; e na volta, Entity -> DTO ->
+JSON.
+
+--------------------------------------------------------------
+QUESTAO 2
+--------------------------------------------------------------
+
+a) Problemas:
+   - A conversao Entity->DTO esta dentro do Service, misturando
+     responsabilidades. Se forem adicionados novos campos ao DTO,
+     o Service cresce e quebra o principio da responsabilidade
+     unica.
+   - Codigo repetitivo: toda vez que o Service precisar converter
+     um Livro em LivroDTO, esse mesmo bloco sera replicado.
+   - orElseThrow() sem argumento lanca uma NoSuchElementException
+     generica. O ideal e lancar uma excecao de negocio (ex.:
+     LivroNaoEncontradoException) tratada por um @RestControllerAdvice.
+   - Nao ha tratamento para o caso de campos novos serem
+     adicionados (esquece-se de mapear no DTO).
+
+b) Refatoracao com Mapper dedicado:
+
+   @Component
+   public class LivroMapper {
+       public LivroDTO toDTO(Livro livro) {
+           LivroDTO dto = new LivroDTO();
+           dto.setId(livro.getId());
+           dto.setTitulo(livro.getTitulo());
+           dto.setAutor(livro.getAutor());
+           return dto;
+       }
+
+       public Livro toEntity(LivroDTO dto) {
+           Livro livro = new Livro();
+           livro.setTitulo(dto.getTitulo());
+           livro.setAutor(dto.getAutor());
+           return livro;
+       }
+   }
+
+   @Service
+   @RequiredArgsConstructor
+   public class LivroService {
+       private final LivroRepository repository;
+       private final LivroMapper mapper;
+
+       public LivroDTO buscarPorId(Long id) {
+           Livro livro = repository.findById(id)
+               .orElseThrow(() -> new LivroNaoEncontradoException(id));
+           return mapper.toDTO(livro);
+       }
+   }
+
+c) Beneficios:
+   - Separacao de responsabilidades: Service cuida de regras,
+     Mapper cuida de conversao.
+   - Reuso: o mesmo metodo de conversao serve para varios pontos
+     da aplicacao.
+   - Testabilidade: o Mapper pode ser testado isoladamente.
+   - Manutencao: ao adicionar um campo novo, basta atualizar o
+     Mapper, e todos os fluxos passam a contemplar o novo dado.
+   - Legibilidade: o Service fica curto e focado.
+
+--------------------------------------------------------------
+QUESTAO 3
+--------------------------------------------------------------
+
+a) @NotNull
+   - Valida: o valor nao pode ser null. Strings vazias ("") passam.
+   - Exemplo: campo "id" obrigatorio em um update.
+   - Falha: retorna 400 Bad Request com mensagem indicando que o
+     campo nao pode ser nulo.
+
+b) @NotBlank
+   - Valida: aplicavel a Strings. O valor nao pode ser null, vazio
+     ou conter apenas espacos em branco.
+   - Exemplo: campo "nome" de um cliente.
+   - Falha: 400 Bad Request indicando que o campo nao pode estar
+     em branco.
+
+c) @Size(min=2, max=100)
+   - Valida: tamanho de Strings, Collections, Maps ou arrays.
+     Para String, mede o numero de caracteres.
+   - Exemplo: "titulo" do livro, entre 2 e 100 caracteres.
+   - Falha: 400 informando que o tamanho deve estar entre 2 e 100.
+
+d) @Email
+   - Valida: o valor da String segue o formato basico de e-mail
+     (algo@algo.algo). Aceita null por padrao (combinar com
+     @NotBlank para tornar obrigatorio).
+   - Exemplo: campo "email" do usuario.
+   - Falha: 400 informando que o e-mail e invalido.
+
+e) @Min(0)
+   - Valida: campos numericos devem ser >= 0.
+   - Exemplo: "quantidade" em estoque, "idade".
+   - Falha: 400 informando que o valor deve ser maior ou igual ao
+     minimo.
+
+f) @Pattern(regexp="...")
+   - Valida: a String corresponde a uma expressao regular.
+   - Exemplo: validar formato de CPF, CEP ou telefone.
+   - Falha: 400 informando que o formato e invalido.
+
+--------------------------------------------------------------
+QUESTAO 4
+--------------------------------------------------------------
+
+a) VERDADEIRA.
+   JpaRepository fornece save, findAll, findById, deleteById, etc.,
+   sem que o desenvolvedor escreva SQL.
+
+b) FALSA.
+   @RestController equivale a @Controller + @ResponseBody (na
+   classe), NAO @RequestBody. Ele faz com que os retornos dos
+   metodos sejam serializados diretamente para o corpo da resposta
+   (geralmente JSON).
+
+c) FALSA.
+   O Lombok atua em tempo de compilacao via processamento de
+   anotacoes (annotation processing) e GERA bytecode adicional
+   (getters, setters, construtores, etc.). Ele de fato altera o
+   .class gerado; apenas nao polui o codigo-fonte.
+
+d) VERDADEIRA.
+   @GeneratedValue define a estrategia (AUTO, IDENTITY, SEQUENCE,
+   TABLE) pela qual a chave primaria sera gerada.
+
+e) FALSA.
+   @Table e opcional. Se ausente, o JPA assume que o nome da
+   tabela e igual ao nome da classe. @Table so e necessaria
+   quando se quer customizar nome, schema ou restricoes.
+
+f) VERDADEIRA.
+   Com injecao por construtor, os atributos podem ser final, o
+   que torna a referencia imutavel apos a criacao do bean e
+   garante que a dependencia foi recebida no momento da construcao.
+
+--------------------------------------------------------------
+QUESTAO 5
+--------------------------------------------------------------
+
+- @NotNull: o valor nao pode ser null. Aceita uma String vazia
+  "" ou apenas com espacos "   ".
+- @NotBlank: especifico para Strings. Alem de nao aceitar null,
+  tambem rejeita String vazia ou somente com espacos em branco.
+
+Exemplo em que @NotNull e insuficiente e @NotBlank e correto:
+campo "nome" de um cadastro de cliente. Com @NotNull, o cliente
+poderia enviar `"nome": ""` e a validacao passaria, gravando um
+nome em branco no banco. Com @NotBlank, esse caso e rejeitado,
+garantindo que a String tenha conteudo real.
+
+--------------------------------------------------------------
+QUESTAO 6
+--------------------------------------------------------------
+
+a) - Para consumidores externos da API: Swagger/OpenAPI
+     (springdoc-openapi). Gera documentacao interativa da API
+     diretamente a partir das anotacoes do codigo.
+   - Para desenvolvedores que mantem o codigo: Javadoc. Documenta
+     classes, metodos e parametros internos.
+
+b) - Swagger/OpenAPI: ao adicionar a dependencia
+     springdoc-openapi-starter-webmvc-ui, a aplicacao expoe
+     automaticamente /v3/api-docs (JSON) e /swagger-ui.html
+     (interface web). Anotacoes como @Operation, @Tag, @Schema
+     enriquecem a documentacao. Permite testar endpoints pelo
+     navegador.
+   - Javadoc: comentarios estruturados (/** ... */) acima das
+     classes e metodos, com tags @param, @return, @throws.
+     Gerado em HTML com o comando `javadoc` ou via plugins
+     Maven/Gradle.
+
+c) Sim, e ate recomendado. Sao publicos e proposito distintos:
+   - Javadoc serve para quem le e mantem o codigo (dev interno).
+   - Swagger serve para quem CONSOME a API (front-end, parceiros,
+     QA).
+   Eles nao se sobrepoem e juntos cobrem documentacao interna
+   (Javadoc) + externa (Swagger).
+
+--------------------------------------------------------------
+QUESTAO 7
+--------------------------------------------------------------
+
+a) DTO anotado:
+
+   public class ProdutoDTO {
+
+       @NotBlank(message = "O nome e obrigatorio")
+       @Size(min = 2, max = 100)
+       private String nome;
+       // String obrigatoria, evita "" ou espacos.
+
+       @Size(max = 500)
+       private String descricao;
+       // Opcional, mas se preenchida nao pode passar de 500 chars.
+
+       @NotNull
+       @Positive(message = "O preco deve ser maior que zero")
+       private Double preco;
+       // Nao pode ser null nem zero/negativo.
+
+       @NotNull
+       @Min(value = 0, message = "A quantidade nao pode ser negativa")
+       private Integer quantidade;
+       // Estoque pode ser zero, mas nunca negativo.
+   }
+
+b) No Controller, o parametro que recebe o DTO precisa ser
+   anotado com @Valid (ou @Validated):
+
+   @PostMapping("/produtos")
+   public ProdutoDTO criar(@RequestBody @Valid ProdutoDTO dto) { ... }
+
+   Sem @Valid, as anotacoes de Bean Validation no DTO sao
+   ignoradas.
+
+c) O Spring lanca MethodArgumentNotValidException quando alguma
+   validacao falha. Usando um @RestControllerAdvice com um
+   ExceptionHandler para essa excecao, podemos retornar um JSON
+   estruturado, por exemplo:
+
+   {
+     "erros": [
+       { "campo": "nome", "mensagem": "O nome e obrigatorio" },
+       { "campo": "preco", "mensagem": "O preco deve ser maior que zero" }
+     ]
+   }
+
+   Sem esse handler, o Spring ja retorna um JSON de erro padrao
+   com a lista de campos, mas menos amigavel.
+
+--------------------------------------------------------------
+QUESTAO 8
+--------------------------------------------------------------
+
+a) Injecao por CAMPO:
+
+   @RestController
+   public class ClienteController {
+       @Autowired
+       private ClienteService service;
+   }
+
+   Injecao por CONSTRUTOR:
+
+   @RestController
+   public class ClienteController {
+       private final ClienteService service;
+
+       public ClienteController(ClienteService service) {
+           this.service = service;
+       }
+   }
+
+b) Na injecao por campo, o atributo e privado e o Spring usa
+   reflexao para preenche-lo. Em um teste unitario puro (sem
+   subir o contexto Spring), nao ha como passar o mock via
+   construtor — seria necessario usar reflexao ou frameworks
+   especificos para acessar o campo. Isso torna o teste mais
+   acoplado e dificulta o uso de simples `new`.
+
+c) Como todas as dependencias precisam ser resolvidas na
+   construcao do bean, o Spring detecta dependencias circulares
+   imediatamente na inicializacao (lanca BeanCurrentlyInCreation-
+   Exception), em vez de mascarar o problema ate ele se manifestar
+   em runtime, como pode acontecer com injecao por campo.
+
+d) O Lombok permite gerar o construtor automaticamente, evitando
+   o boilerplate. A anotacao usada e @RequiredArgsConstructor,
+   que cria um construtor com todos os campos `final` (e os
+   campos @NonNull):
+
+   @RestController
+   @RequiredArgsConstructor
+   public class ClienteController {
+       private final ClienteService service;
+   }
+
+--------------------------------------------------------------
+QUESTAO 9
+--------------------------------------------------------------
+
+1 - d) findAll() -> Retorna todos os registros da tabela.
+2 - f) findById(id) -> Retorna um Optional com a entidade ou
+       vazio se nao existir.
+3 - a) save(entity) -> Persiste uma entidade nova ou atualiza
+       uma existente.
+4 - c) deleteById(id) -> Remove o registro com o ID informado.
+5 - e) existsById(id) -> Verifica se existe um registro com o
+       ID informado.
+6 - b) count() -> Retorna o total de registros na tabela.
+
+A opcao (g) nao e usada — JpaRepository nao tem metodo "padrao"
+para registros modificados recentemente.
+
+--------------------------------------------------------------
+QUESTAO 10
+--------------------------------------------------------------
+
+DTOs sao usados em vez de expor a Entity diretamente porque a
+Entity esta acoplada ao modelo de banco e ao dominio interno.
+
+Tres problemas concretos ao retornar a Entity:
+
+1. Vazamento de dados sensiveis: campos como `senha`,
+   `tokenInterno`, `salario`, `cpfHash` viriam na resposta
+   da API. Em DTOs, controla-se exatamente o que sai.
+
+2. Acoplamento entre API e banco: qualquer mudanca na tabela
+   (renomear coluna, dividir entidade) quebra contratos
+   publicos da API. O DTO atua como camada de protecao,
+   permitindo evoluir a Entity sem quebrar clientes.
+
+3. Problemas de serializacao em relacionamentos JPA:
+   relacionamentos LAZY podem causar LazyInitializationException
+   ao serem serializados; relacionamentos bidirecionais geram
+   loops infinitos no JSON; e ainda pode haver carregamento
+   acidental de grandes grafos de objetos.
+
+Outros problemas: ausencia de validacao especifica para entrada
+(Entity nao deveria ter @NotBlank), risco de mass assignment
+(cliente envia campo `admin=true` e atinge a Entity), e
+impossibilidade de ter visoes diferentes do mesmo dado (resumo
+vs. detalhe).
+
+--------------------------------------------------------------
+QUESTAO 11
+--------------------------------------------------------------
+
+Problemas:
+
+1) Falta @Valid no parametro do POST. Sem @Valid, as anotacoes
+   de Bean Validation no ClienteDTO sao ignoradas.
+
+2) Falta @RequestBody no parametro `dto`. Sem ele, o Spring nao
+   desserializa o corpo JSON para o objeto; tentaria preencher a
+   partir de query params/form, deixando os campos null.
+
+3) (Bonus) O atributo `service` deveria ser `final` para reforcar
+   imutabilidade e o uso de @Autowired no construtor e
+   desnecessario em versoes atuais do Spring (quando ha apenas um
+   construtor, ele e usado automaticamente).
+
+4) (Bonus) Faltam @RequestMapping("/clientes") na classe e o
+   status HTTP adequado (deveria retornar 201 Created via
+   ResponseEntity ou @ResponseStatus).
+
+Versao corrigida:
+
+   @RestController
+   @RequestMapping("/clientes")
+   @RequiredArgsConstructor
+   public class ClienteController {
+
+       private final ClienteService service;
+
+       @PostMapping
+       @ResponseStatus(HttpStatus.CREATED)
+       public ClienteDTO criar(@RequestBody @Valid ClienteDTO dto) {
+           return service.criar(dto);
+       }
+   }
+
+--------------------------------------------------------------
+QUESTAO 12
+--------------------------------------------------------------
+
+Query methods sao metodos declarados na interface do Repository
+cuja consulta o Spring Data JPA DERIVA automaticamente a partir
+do NOME do metodo, seguindo uma convencao (findBy, existsBy,
+countBy, deleteBy, combinados com nomes dos campos da Entity e
+palavras-chave como And, Or, LessThan, Containing, IgnoreCase,
+etc.). Nao e preciso escrever JPQL/SQL.
+
+a) findByNome(String nome)
+   -> SELECT * FROM produto WHERE nome = ?
+
+b) findByPrecoLessThan(Double valor)
+   -> SELECT * FROM produto WHERE preco < ?
+
+c) findByAtivoTrue()
+   -> SELECT * FROM produto WHERE ativo = true
+
+d) findByNomeContainingIgnoreCase(String termo)
+   -> SELECT * FROM produto WHERE LOWER(nome) LIKE LOWER('%termo%')
+   (busca parcial, case-insensitive)
+
+e) findByCategoriaAndPrecoLessThanEqual(String cat, Double v)
+   -> SELECT * FROM produto WHERE categoria = ? AND preco <= ?
+
+--------------------------------------------------------------
+QUESTAO 13
+--------------------------------------------------------------
+
+a) @Getter / @Setter
+   - Gera: metodos get/set para todos os atributos (ou para um
+     atributo individual se aplicada nele).
+   - Util: em DTOs e Entities, onde getters/setters sao
+     necessarios mas escrever a mao polui a classe.
+
+b) @AllArgsConstructor
+   - Gera: construtor com TODOS os atributos da classe.
+   - Util: em DTOs e classes de teste/fixture, quando se quer
+     criar instancias completas em uma linha.
+
+c) @NoArgsConstructor
+   - Gera: construtor sem argumentos.
+   - Util: em Entities JPA (JPA exige construtor sem argumentos)
+     e em frameworks de serializacao como Jackson.
+
+d) @Builder
+   - Gera: o padrao Builder (Cliente.builder().nome("X").build()).
+   - Util: em classes com muitos atributos opcionais, onde um
+     construtor cheio fica ilegivel. Comum em DTOs complexos.
+
+e) @EqualsAndHashCode
+   - Gera: equals() e hashCode() com base nos campos.
+   - Util: quando objetos sao comparados ou usados em Set/Map.
+     Em Entities, recomenda-se restringir aos campos da chave
+     primaria (onlyExplicitlyIncluded) para evitar bugs com
+     entidades nao persistidas.
+
+f) @Data
+   - Agrupa: @Getter + @Setter + @ToString + @EqualsAndHashCode
+     + @RequiredArgsConstructor.
+   - Util: em DTOs simples (cuidado em Entities pelo motivo
+     acima).
+
+--------------------------------------------------------------
+QUESTAO 14
+--------------------------------------------------------------
+
+a) VERDADEIRA.
+   Sem @RequestBody, o Spring nao desserializa o corpo JSON da
+   requisicao para o objeto Java.
+
+b) FALSA.
+   @PathVariable extrai valores da URL (ex.: /clientes/{id}). Para
+   valores do CORPO da requisicao usa-se @RequestBody; para query
+   string, @RequestParam.
+
+c) VERDADEIRA.
+   @RequestMapping pode ser usado em classe (define um prefixo)
+   e em metodo (define a rota especifica).
+
+d) FALSA.
+   @Positive exige valor estritamente MAIOR que zero. Para "maior
+   ou igual a zero" usa-se @PositiveOrZero (ou @Min(0)).
+
+e) VERDADEIRA.
+   O Swagger UI permite executar requisicoes diretamente pela
+   pagina, sem precisar de Postman/Insomnia.
+
+f) VERDADEIRA.
+   Em JPA, toda Entity precisa ter um campo (ou IdClass)
+   identificado com @Id. Sem isso, o JPA nao consegue mapear a
+   tabela.
+
+--------------------------------------------------------------
+QUESTAO 15
+--------------------------------------------------------------
+
+a) Entity Pedido:
+
+   @Entity
+   @Table(name = "pedido")
+   @Getter @Setter
+   @NoArgsConstructor @AllArgsConstructor
+   public class Pedido {
+
+       @Id
+       @GeneratedValue(strategy = GenerationType.IDENTITY)
+       private Long id;
+
+       @Column(name = "numero_pedido", nullable = false)
+       private String numeroPedido;
+
+       private BigDecimal valorTotal;
+   }
+
+b) DTO PedidoDTO:
+
+   @Getter @Setter
+   @NoArgsConstructor @AllArgsConstructor
+   public class PedidoDTO {
+
+       @NotBlank(message = "O numero do pedido e obrigatorio")
+       @Size(max = 20)
+       private String numeroPedido;
+
+       @NotNull
+       @Positive(message = "O valor total deve ser positivo")
+       private BigDecimal valorTotal;
+   }
+
+   (O id normalmente nao vem do cliente em um POST de criacao;
+    pode existir um PedidoResponseDTO separado para a resposta.)
+
+c) Repository:
+
+   public interface PedidoRepository
+           extends JpaRepository<Pedido, Long> {
+   }
+
+   Nao precisa de implementacao — o Spring Data JPA gera tudo.
+
+--------------------------------------------------------------
+QUESTAO 16
+--------------------------------------------------------------
+
+O Application Context e o container do Spring: o objeto que
+gerencia o ciclo de vida dos beans, suas dependencias e
+configuracoes. Quando a aplicacao sobe, o Spring escaneia o
+classpath em busca de classes anotadas com @Component, @Service,
+@Repository, @Controller, @Configuration etc., as instancia, as
+configura e as registra no contexto.
+
+Relacao com a injecao de dependencia: quando uma classe declara
+uma dependencia (via construtor, @Autowired, etc.), o container
+procura no Application Context um bean compativel e o injeta. O
+desenvolvedor nao precisa instanciar com `new` — quem faz isso e
+o Spring.
+
+"Um bean ser gerenciado pelo Spring" significa: o ciclo de vida
+da instancia (criacao, inicializacao, injecao de dependencias,
+proxies para transacao/cache/seguranca, destruicao) e controlado
+pelo container, e ele esta disponivel para ser injetado em outros
+beans.
+
+Diferenca pratica entre @Component, @Service e @Repository:
+- Tecnicamente, os tres registram a classe como bean. As
+  diferencas sao SEMANTICAS e algumas funcionalidades extras:
+- @Component: estereotipo generico. Use quando a classe nao se
+  encaixa em uma categoria especifica.
+- @Service: estereotipo para a camada de servico/regras de
+  negocio. Comunica intencao ao leitor do codigo.
+- @Repository: marca a camada de persistencia. Alem do registro
+  como bean, o Spring aplica TRADUCAO DE EXCECOES: excecoes
+  especificas de JDBC/JPA sao convertidas em DataAccessException,
+  uniformizando o tratamento na aplicacao.
+
+--------------------------------------------------------------
+QUESTAO 17
+--------------------------------------------------------------
+
+a) O mecanismo e o de TRATAMENTO GLOBAL DE EXCECOES via
+   @RestControllerAdvice + @ExceptionHandler. Pode-se interceptar
+   MethodArgumentNotValidException (lancada quando @Valid falha)
+   e montar uma resposta personalizada.
+
+b) @ControllerAdvice e uma anotacao que torna uma classe um
+   "interceptador global" de controllers — seus metodos com
+   @ExceptionHandler, @ModelAttribute ou @InitBinder se aplicam
+   a TODOS os controllers da aplicacao.
+   @RestControllerAdvice e o mesmo que @ControllerAdvice +
+   @ResponseBody, ou seja, os retornos sao serializados como
+   JSON automaticamente (ideal para APIs REST).
+
+c) Handler:
+
+   @RestControllerAdvice
+   public class ValidationExceptionHandler {
+
+       @ExceptionHandler(MethodArgumentNotValidException.class)
+       @ResponseStatus(HttpStatus.BAD_REQUEST)
+       public Map<String, Object> tratarValidacao(
+               MethodArgumentNotValidException ex) {
+
+           List<Map<String, String>> erros = ex.getBindingResult()
+               .getFieldErrors()
+               .stream()
+               .map(fe -> Map.of(
+                   "campo", fe.getField(),
+                   "mensagem", fe.getDefaultMessage()))
+               .toList();
+
+           return Map.of(
+               "status", 400,
+               "erro", "Erro de validacao",
+               "campos", erros
+           );
+       }
+   }
+
+   Resposta tipica:
+   {
+     "status": 400,
+     "erro": "Erro de validacao",
+     "campos": [
+       { "campo": "email", "mensagem": "E-mail invalido" },
+       { "campo": "nome",  "mensagem": "O nome e obrigatorio" }
+     ]
+   }
+
+--------------------------------------------------------------
+QUESTAO 18
+--------------------------------------------------------------
+
+a) @Column(nullable = false) vs @NotNull
+   - @Column(nullable = false): restricao no esquema do BANCO
+     (gera NOT NULL na coluna). E verificada apenas quando o
+     INSERT/UPDATE chega ao banco; se falhar, lanca uma excecao
+     do JPA.
+   - @NotNull (Bean Validation): validacao no nivel da APLICACAO,
+     verificada antes mesmo de chegar ao banco quando se usa
+     @Valid. Permite mensagens amigaveis e retorno 400.
+   Nao fazem a mesma coisa: ideal e usar AMBAS — uma protege a
+   API, a outra protege a integridade do banco.
+
+b) save() vs saveAndFlush()
+   - save(): marca a entidade para ser persistida. A sincronizacao
+     com o banco (SQL real) pode ocorrer apenas no fim da
+     transacao, conforme o flush mode do JPA.
+   - saveAndFlush(): persiste e FORCA o flush imediato, garantindo
+     que o SQL seja enviado ao banco naquele momento. Util quando
+     se precisa que a operacao seja imediatamente visivel para
+     uma consulta nativa ou para acionar triggers.
+
+c) Nao. Uma interface que estende JpaRepository ja e detectada
+   automaticamente pelo Spring Data, que cria um proxy e o
+   registra como bean. A anotacao @Repository nesse caso e
+   redundante. Ela so e necessaria em classes que NAO herdam de
+   JpaRepository, para indicar que sao componentes de
+   persistencia e habilitar a traducao de excecoes.
+
+d) Optional<T> em findById()
+   - E um wrapper que pode conter um valor (entidade encontrada)
+     ou estar vazio.
+   - Vantagens sobre retornar null:
+     * Forca o chamador a tratar explicitamente o caso "nao
+       encontrado" (com isPresent, orElseThrow, orElseGet etc.).
+     * Reduz NullPointerException.
+     * Torna o contrato do metodo evidente — quem le sabe que o
+       resultado pode nao existir.
+
+--------------------------------------------------------------
+QUESTAO 19
+--------------------------------------------------------------
+
+a) Problemas:
+   - A Entity Funcionario e exposta diretamente pela API (tanto
+     na entrada quanto na saida), retornando inclusive o campo
+     "senha" — falha grave de seguranca.
+   - O cliente pode enviar QUALQUER campo (id, salario,
+     departamento) no POST, abrindo brecha para mass assignment.
+   - Nao ha validacao nos dados de entrada (nome, email, senha
+     podem vir null/vazios).
+   - @Id presente, mas SEM @GeneratedValue: o cliente teria que
+     informar o id manualmente.
+   - Injecao por campo no Controller — dificulta testes e nao
+     permite final.
+   - A senha provavelmente esta em texto puro (sem hash).
+   - Salario exposto em GET — informacao sensivel.
+
+b) Com DTOs, separa-se a entidade interna da representacao da API.
+   Cria-se um FuncionarioRequestDTO (sem id, sem campos sensiveis
+   gerados internamente) para entrada e um FuncionarioResponseDTO
+   (SEM senha, sem salario, ou com salario apenas para perfis
+   autorizados) para saida. Assim o cliente nunca recebe a senha,
+   independentemente do que esteja salvo no banco.
+
+c) Falta @GeneratedValue. A estrategia recomendada para a maioria
+   dos bancos relacionais e IDENTITY (deixa o banco gerar o id
+   via auto-incremento). Em bancos com sequence (Oracle/Postgres
+   com sequence), usa-se SEQUENCE.
+
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private Long id;
+
+d) DTO reescrito:
+
+   @Getter @Setter
+   @NoArgsConstructor @AllArgsConstructor
+   public class FuncionarioDTO {
+
+       @NotBlank(message = "O nome e obrigatorio")
+       @Size(min = 2, max = 100)
+       private String nome;
+
+       @NotBlank
+       @Email(message = "E-mail invalido")
+       private String email;
+
+       @NotBlank
+       @Size(min = 8, max = 64, message = "A senha deve ter entre 8 e 64 caracteres")
+       private String senha;
+
+       @NotNull
+       @PositiveOrZero
+       private Double salario;
+
+       @NotBlank
+       @Size(max = 50)
+       private String departamento;
+   }
+
+   (Para resposta, criar um FuncionarioResponseDTO sem `senha`.)
+
+e) Controller com injecao por construtor (com Lombok):
+
+   @RestController
+   @RequestMapping("/funcionarios")
+   @RequiredArgsConstructor
+   public class FuncionarioController {
+
+       private final FuncionarioService service;
+
+       @GetMapping("/{id}")
+       public FuncionarioResponseDTO buscar(@PathVariable Long id) {
+           return service.buscar(id);
+       }
+
+       @PostMapping
+       @ResponseStatus(HttpStatus.CREATED)
+       public FuncionarioResponseDTO criar(
+               @RequestBody @Valid FuncionarioDTO dto) {
+           return service.criar(dto);
+       }
+   }
+
+--------------------------------------------------------------
+QUESTAO 20
+--------------------------------------------------------------
+
+a) Javadoc
+   - QUANDO: ao escrever bibliotecas, APIs internas reutilizaveis
+     ou modulos com regras complexas que outros desenvolvedores
+     irao usar.
+   - O QUE COMUNICA: contrato do metodo (o que faz, parametros,
+     valor de retorno, excecoes possiveis), invariantes, exemplos
+     de uso.
+   - PARA QUEM: outros desenvolvedores do time/projeto, mantenedores
+     futuros e usuarios da biblioteca.
+
+b) Swagger UI
+   - QUANDO: assim que a API tem endpoints estaveis para serem
+     consumidos. E especialmente valioso na FASE DE INTEGRACAO,
+     quando front-end, mobile e parceiros externos comecam a
+     conectar.
+   - PARA QUEM: desenvolvedores front-end/mobile, QA, parceiros
+     externos, product managers que querem entender as capacidades
+     da API. Tambem util para o proprio time de back-end testar
+     rapidamente endpoints sem precisar do Postman.
+
+c) @Builder do Lombok
+   - QUANDO: classes com MUITOS atributos, especialmente quando
+     varios sao opcionais. Comum em DTOs complexos, configuracoes
+     e objetos de teste/fixture.
+   - PROBLEMA QUE RESOLVE: com @AllArgsConstructor, uma chamada
+     com 10 atributos vira `new Pedido(null, "X", null, 0, ...)`,
+     ilegivel e propensa a erro de ordem. O Builder permite
+     `Pedido.builder().numero("X").valor(0).build()`, nomeando
+     cada campo e informando apenas o que importa.
+
+d) Mapper dedicado
+   - QUANDO COMECA A SER UM PROBLEMA: assim que ha duplicacao da
+     conversao Entity<->DTO em mais de um lugar, quando os DTOs
+     comecam a ter muitos campos, ou quando ha mais de um DTO
+     para a mesma Entity (ex.: ResumoDTO, DetalheDTO, RequestDTO).
+     Tambem se torna critico quando a logica de mapeamento ganha
+     transformacoes (formatar datas, concatenar campos, esconder
+     dados). Sem Mapper, essa logica vaza para o Service e suja
+     a regra de negocio.
+
+e) JpaRepository com query method personalizado
+   - QUANDO FAZ SENTIDO: sempre que a filtragem pode ser feita no
+     BANCO. Trazer todos os registros com findAll() e filtrar em
+     memoria e ineficiente: gera mais I/O, consome memoria da
+     aplicacao e nao escala. Um findByStatusAndDataCriacaoAfter
+     gera um SQL com WHERE indexavel, traz apenas as linhas
+     necessarias e tira proveito dos indices do banco. Use query
+     methods (ou @Query) sempre que o filtro for expressavel em
+     SQL — o Service so deve filtrar em memoria quando a regra
+     depender de dados externos ou for muito complexa para o SQL.
+
+========================================================
+  FIM DAS RESPOSTAS — 20 QUESTOES
+========================================================

@@ -1,0 +1,54 @@
+GABARITO - LISTA DE ESTUDOS - ARQUITETURA ORIENTADA A SERVIÇOS
+3º Bimestre
+
+01. Não. Sem chamar save(), as alterações feitas no objeto ficam apenas
+em memória; o banco de dados continua com os dados antigos até que
+save() seja chamado explicitamente.
+
+02. Para impedir que outras classes criem instâncias dela, já que ela só
+tem métodos estáticos e não guarda estado não faz sentido instanciar
+um objeto dela.
+
+03. A camada Service. O Controller deve apenas receber a requisição e
+delegar; colocar regras de negócio nele mistura responsabilidades e
+dificulta reaproveitar e testar a lógica.
+
+04. O primeiro parâmetro é o tipo da entidade gerenciada pelo repositório
+(Turma); o segundo é o tipo do campo usado como chave primária (@Id), no
+caso Long.
+
+05. Se o id não existir, deleteById() lança uma exceção internamente (o
+registro não é encontrado). Sem tratamento adequado, isso resulta em um
+erro genérico (HTTP 500) em vez de uma resposta clara de "não encontrado"
+(HTTP 404).
+
+06. Significa que o valor do id é gerado automaticamente pelo próprio
+banco de dados (geralmente auto-incremento) no momento em que o registro
+é inserido, e não precisa ser definido manualmente.
+
+07. Se o Optional estiver vazio, o Controller deve retornar uma resposta
+404 (não encontrado), tipicamente usando algo como
+.orElse(ResponseEntity.notFound().build()).
+
+08. Pula a camada Service, que deveria concentrar a lógica de negócio e
+mediar o acesso aos dados; isso quebra a separação de responsabilidades
+e mistura a camada de apresentação com o acesso direto ao banco.
+
+09. Não. O handler só captura o tipo de exceção especificado (ou suas
+subclasses). Uma exceção de outro tipo não é tratada por ele; sem outro
+handler registrado, o Spring devolve uma resposta de erro padrão
+(geralmente HTTP 500).
+
+10. @NotBlank garante que o campo não seja nulo, vazio ou só espaços;
+@Size garante que o tamanho do texto esteja dentro de um intervalo
+definido. Sim, ambas podem falhar ao mesmo tempo caso o valor não passe
+em nenhuma das duas regras.
+
+11. É o mecanismo pelo qual o Spring cria e fornece automaticamente as
+dependências de uma classe (como um Service), em vez de a própria classe
+criar suas dependências manualmente. Isso mantém as classes desacopladas
+e facilita testes e manutenção.
+
+12. Controller: recebe a requisição HTTP e devolve a resposta.
+Service: contém a lógica de negócio e as validações.
+Repository: acessa o banco de dados.

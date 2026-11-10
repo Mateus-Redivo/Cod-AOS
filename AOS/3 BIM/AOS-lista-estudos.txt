@@ -1,0 +1,45 @@
+LISTA DE ESTUDOS - ARQUITETURA ORIENTADA A SERVIÇOS
+3º Bimestre
+
+01. Você busca uma entidade Livro pelo repositório, altera o atributo
+titulo em memória, mas não chama o método save() do repositório. O banco
+de dados é atualizado com o novo título? Explique por quê.
+
+02. Por que uma classe utilitária que só tem métodos estáticos (por
+exemplo, uma classe FuncionarioMapper) costuma declarar seu construtor
+como private?
+
+03. Em uma arquitetura em camadas (Controller -> Service -> Repository),
+qual camada deve conter as regras de negócio e validações? Por que não
+colocá-las no Controller?
+
+04. O que representam os dois parâmetros genéricos em uma declaração como
+JpaRepository<Turma, Long>?
+
+05. O que acontece ao chamar deleteById(id) de um JpaRepository quando o
+id informado não existe no banco de dados? Que problema isso pode causar
+se não houver tratamento de exceção?
+
+06. O que significa a anotação @GeneratedValue(strategy =
+GenerationType.IDENTITY) aplicada a um campo id de uma entidade?
+
+07. Um método de service retorna Optional<AlunoDTO>. De forma geral, como
+o Controller deve tratar o caso em que esse Optional está vazio, para
+devolver uma resposta HTTP adequada?
+
+08. Qual é o problema de um Controller que injeta e usa diretamente um
+Repository, sem passar pela camada Service?
+
+09. Uma classe anotada com @RestControllerAdvice tem um método com
+@ExceptionHandler(ValidationException.class). Se o código lançar uma
+exceção de um tipo diferente (não relacionado), esse handler vai
+capturá-la? O que acontece nesse caso?
+
+10. Qual é a diferença entre as anotações de validação @NotBlank e @Size
+em um campo de DTO? É possível as duas falharem ao mesmo tempo?
+
+11. O que é injeção de dependência (@Autowired) e por que evitamos criar
+um Service manualmente com new dentro de um Controller?
+
+12. Descreva, em poucas palavras, a responsabilidade de cada camada na
+arquitetura Controller -> Service -> Repository.

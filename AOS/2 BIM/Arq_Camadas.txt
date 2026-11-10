@@ -1,0 +1,366 @@
+========================================================
+  LISTA DE EXERCÍCIOS — Arquitetura Orientada a Serviços
+  Material de Estudo
+========================================================
+
+--------------------------------------------------------------
+QUESTÃO 1
+--------------------------------------------------------------
+Você está desenvolvendo uma API REST para um sistema de
+biblioteca. Descreva, em ordem, o fluxo completo de uma
+requisição POST /livros que cadastra um novo livro, passando
+por todas as camadas da aplicação (Controller, Service,
+Repository, Entity, DTO). Explique o papel de cada camada
+nesse fluxo.
+
+--------------------------------------------------------------
+QUESTÃO 2
+--------------------------------------------------------------
+Um colega implementou o seguinte código no Service:
+
+  public LivroDTO buscarPorId(Long id) {
+      Livro livro = repository.findById(id).orElseThrow();
+      LivroDTO dto = new LivroDTO();
+      dto.setTitulo(livro.getTitulo());
+      dto.setAutor(livro.getAutor());
+      return dto;
+  }
+
+a) O que está errado ou poderia ser melhorado nessa abordagem?
+b) Como você refatoraria esse código usando uma classe Mapper
+   dedicada?
+c) Quais benefícios essa refatoração traz a longo prazo?
+
+--------------------------------------------------------------
+QUESTÃO 3
+--------------------------------------------------------------
+Considere as anotações abaixo do Bean Validation. Para cada
+uma, escreva: o que ela valida, um exemplo de campo em que
+faria sentido usá-la, e o que acontece se a validação falhar.
+
+a) @NotNull
+b) @NotBlank
+c) @Size(min=2, max=100)
+d) @Email
+e) @Min(0)
+f) @Pattern(regexp="...")
+
+--------------------------------------------------------------
+QUESTÃO 4
+--------------------------------------------------------------
+Marque V ou F e justifique TODAS as falsas:
+
+a) A interface JpaRepository já fornece implementações prontas
+   para operações básicas de CRUD sem que o desenvolvedor
+   precise escrever nenhuma linha de SQL.
+
+b) @RestController é equivalente a usar @Controller e
+   @RequestBody juntos na mesma classe.
+
+c) O Lombok não altera o bytecode da aplicação; ele apenas
+   melhora a leitura do código-fonte sem gerar nada novo.
+
+d) A anotação @GeneratedValue define a estratégia pela qual
+   o JPA gera automaticamente o valor da chave primária.
+
+e) Uma classe anotada com @Entity precisa obrigatoriamente
+   ter uma anotação @Table para ser reconhecida pelo JPA.
+
+f) A injeção por construtor permite que os campos sejam
+   declarados como final, tornando o objeto imutável após
+   sua criação.
+
+--------------------------------------------------------------
+QUESTÃO 5
+--------------------------------------------------------------
+Explique a diferença entre @NotNull e @NotBlank. Em seguida,
+dê um exemplo de situação em que usar @NotNull seria
+insuficiente e @NotBlank seria a escolha correta.
+
+--------------------------------------------------------------
+QUESTÃO 6
+--------------------------------------------------------------
+Seu tech lead pediu para você documentar a API do projeto.
+Ele mencionou dois tipos de documentação: uma voltada para
+consumidores externos da API e outra voltada para
+desenvolvedores que vão manter o código-fonte.
+
+a) Que ferramenta/abordagem você usaria para cada caso?
+b) Como cada uma funciona na prática?
+c) É possível (e faz sentido) usar as duas ao mesmo tempo
+   no mesmo projeto? Justifique.
+
+--------------------------------------------------------------
+QUESTÃO 7
+--------------------------------------------------------------
+Dado o seguinte DTO:
+
+  public class ProdutoDTO {
+      private String nome;
+      private String descricao;
+      private Double preco;
+      private Integer quantidade;
+  }
+
+a) Adicione anotações do Bean Validation adequadas a cada
+   campo, justificando a escolha de cada uma.
+b) O que precisa ser feito no Controller para que essas
+   validações sejam ativadas?
+c) Como o cliente da API saberá quais campos são inválidos
+   quando a requisição falhar?
+
+--------------------------------------------------------------
+QUESTÃO 8
+--------------------------------------------------------------
+Compare injeção por construtor com injeção por campo
+(@Autowired no atributo) respondendo:
+
+a) Como fica o código em cada abordagem? Mostre um exemplo
+   simples de cada uma.
+b) Por que a injeção por campo dificulta os testes unitários?
+c) Como a injeção por construtor ajuda a detectar dependências
+   circulares mais cedo?
+d) O que muda quando você usa o Lombok junto com injeção
+   por construtor? Qual anotação do Lombok é usada para isso?
+
+--------------------------------------------------------------
+QUESTÃO 9
+--------------------------------------------------------------
+Associe os métodos da Coluna A ao que eles fazem na Coluna B,
+considerando uma interface que estende JpaRepository.
+
+Coluna A:
+1. findAll()
+2. findById(id)
+3. save(entity)
+4. deleteById(id)
+5. existsById(id)
+6. count()
+
+Coluna B:
+a) Persiste uma entidade nova ou atualiza uma existente
+b) Retorna o total de registros na tabela
+c) Remove o registro com o ID informado
+d) Retorna todos os registros da tabela
+e) Verifica se existe um registro com o ID informado
+f) Retorna um Optional com a entidade ou vazio se não existir
+g) Retorna apenas os registros modificados recentemente
+
+--------------------------------------------------------------
+QUESTÃO 10
+--------------------------------------------------------------
+Por que usar um DTO em vez de expor diretamente a Entity nas
+respostas da API? Cite pelo menos três problemas concretos
+que podem surgir ao retornar a Entity diretamente.
+
+--------------------------------------------------------------
+QUESTÃO 11
+--------------------------------------------------------------
+Um desenvolvedor escreveu o seguinte Controller:
+
+  @RestController
+  public class ClienteController {
+
+      private ClienteService service;
+
+      @Autowired
+      public ClienteController(ClienteService service) {
+          this.service = service;
+      }
+
+      @PostMapping("/clientes")
+      public ClienteDTO criar(ClienteDTO dto) {
+          return service.criar(dto);
+      }
+  }
+
+Há pelo menos dois problemas nesse código. Identifique-os e
+explique como corrigi-los.
+
+--------------------------------------------------------------
+QUESTÃO 12
+--------------------------------------------------------------
+Explique o que são "query methods" (métodos de consulta
+derivados) do Spring Data JPA. Depois, informe o que cada
+método abaixo faria em um repositório de Produto:
+
+a) findByNome(String nome)
+b) findByPrecoLessThan(Double valor)
+c) findByAtivoTrue()
+d) findByNomeContainingIgnoreCase(String termo)
+e) findByCategoriaAndPrecoLessThanEqual(String cat, Double v)
+
+--------------------------------------------------------------
+QUESTÃO 13
+--------------------------------------------------------------
+Para cada anotação do Lombok abaixo, diga o que ela gera
+automaticamente e um caso em que ela seria especialmente útil:
+
+a) @Getter / @Setter
+b) @AllArgsConstructor
+c) @NoArgsConstructor
+d) @Builder
+e) @EqualsAndHashCode
+f) @Data (o que ela agrupa?)
+
+--------------------------------------------------------------
+QUESTÃO 14
+--------------------------------------------------------------
+Marque V ou F e justifique TODAS as falsas:
+
+a) @RequestBody é necessário para que o Spring desserialize
+   o corpo JSON da requisição para um objeto Java.
+
+b) @PathVariable extrai valores que vêm no corpo da
+   requisição HTTP.
+
+c) @RequestMapping pode ser usado tanto em nível de classe
+   quanto em nível de método no Controller.
+
+d) Usar @Positive em um campo garante que o valor seja maior
+   ou igual a zero.
+
+e) O Swagger/OpenAPI permite que os endpoints sejam testados
+   diretamente pela sua interface, sem precisar de ferramentas
+   como Postman ou Insomnia.
+
+f) Toda classe que representa uma tabela no banco de dados
+   precisa ter o campo de chave primária anotado com @Id.
+
+--------------------------------------------------------------
+QUESTÃO 15
+--------------------------------------------------------------
+Imagine que você precisa criar uma API para um sistema de
+vendas. Esboce (sem precisar compilar) como ficaria a
+estrutura das seguintes classes, com as anotações corretas:
+
+a) A Entity "Pedido" com os campos: id (gerado automaticamente),
+   numeroPedido (não nulo, nome da coluna "numero_pedido") e
+   valorTotal.
+
+b) O DTO "PedidoDTO" com validações adequadas para receber
+   dados de criação de um pedido.
+
+c) A interface "PedidoRepository" que herda do JpaRepository.
+
+--------------------------------------------------------------
+QUESTÃO 16
+--------------------------------------------------------------
+Explique o que é o contexto de aplicação do Spring (Application
+Context) e como ele se relaciona com a injeção de dependência.
+O que significa dizer que um bean é gerenciado pelo Spring?
+Qual a diferença prática entre um @Component, um @Service e
+um @Repository em termos de funcionamento no container do
+Spring?
+
+--------------------------------------------------------------
+QUESTÃO 17
+--------------------------------------------------------------
+Considere o seguinte cenário: ao receber uma requisição com
+dados inválidos, a API retorna um JSON de erro, mas sem
+nenhuma informação sobre quais campos falharam.
+
+a) Qual mecanismo do Spring Boot você usaria para personalizar
+   a resposta de erro de validação?
+b) O que é @ControllerAdvice / @RestControllerAdvice e como
+   ele funciona?
+c) Esboce como seria um handler que captura
+   MethodArgumentNotValidException e retorna uma resposta
+   mais amigável com a lista dos erros por campo.
+
+--------------------------------------------------------------
+QUESTÃO 18
+--------------------------------------------------------------
+Responda de forma objetiva:
+
+a) Qual a diferença entre @Column(nullable = false) e
+   @NotNull do Bean Validation? As duas fazem a mesma coisa?
+
+b) Qual a diferença entre save() e saveAndFlush() no
+   JpaRepository?
+
+c) Um Repository precisa ser anotado com @Repository para
+   funcionar com o Spring Data JPA? Explique.
+
+d) Para que serve o Optional<T> retornado pelo findById()?
+   Por que é melhor do que retornar null diretamente?
+
+--------------------------------------------------------------
+QUESTÃO 19
+--------------------------------------------------------------
+Analise o seguinte trecho de código e responda as perguntas:
+
+  @Entity
+  public class Funcionario {
+
+      @Id
+      private Long id;
+
+      private String nome;
+      private String email;
+      private String senha;
+      private Double salario;
+      private String departamento;
+  }
+
+  @RestController
+  @RequestMapping("/funcionarios")
+  public class FuncionarioController {
+
+      @Autowired
+      private FuncionarioService service;
+
+      @GetMapping("/{id}")
+      public Funcionario buscar(@PathVariable Long id) {
+          return service.buscar(id);
+      }
+
+      @PostMapping
+      public Funcionario criar(@RequestBody Funcionario funcionario) {
+          return service.criar(funcionario);
+      }
+  }
+
+a) Quais problemas de segurança e design existem nesse código?
+b) O campo "senha" está sendo exposto na resposta da API.
+   Como o uso de DTOs resolveria esse problema?
+c) A chave primária não possui geração automática de valor.
+   Qual anotação está faltando e qual estratégia você usaria?
+d) O campo "email" não tem nenhuma validação. Reescreva a
+   classe como um DTO adequado, com as anotações corretas
+   de validação para todos os campos que julgar necessário.
+e) A injeção no Controller está feita por campo. Reescreva
+   o Controller aplicando a melhor prática de injeção.
+
+--------------------------------------------------------------
+QUESTÃO 20
+--------------------------------------------------------------
+Relacione os conceitos abaixo com uma situação prática do
+dia a dia do desenvolvimento, explicando QUANDO e POR QUÊ
+você usaria cada um:
+
+a) Javadoc
+   → Quando você o escreveria? O que ele comunica e para quem?
+
+b) Swagger UI
+   → Em que momento do projeto ele é mais valioso?
+     Para que perfil de pessoa ele é mais útil?
+
+c) @Builder do Lombok
+   → Em que tipo de classe ele é especialmente útil?
+     Qual problema ele resolve que @AllArgsConstructor
+     não resolve tão bem?
+
+d) Mapper dedicado
+   → Quando a ausência de um Mapper começa a se tornar
+     um problema real no projeto?
+
+e) JpaRepository com query method personalizado
+   → Quando faz sentido criar um método como
+     findByStatusAndDataCriacaoAfter() em vez de usar
+     findAll() e filtrar no Service?
+
+========================================================
+  FIM DA LISTA — 20 QUESTÕES
+  Bons estudos!
+========================================================
