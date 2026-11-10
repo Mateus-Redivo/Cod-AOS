@@ -1,0 +1,265 @@
+==============================================================================
+ARQUITETURA ORIENTADA A SERVIÇOS (AOS)
+==============================================================================
+
+AOS-01
+Considere o DTO e o método de Controller abaixo:
+
+    public class CursoDTO {
+        @NotBlank
+        private String titulo;
+
+        @Positive
+        private Integer cargaHoraria;
+    }
+
+    @PostMapping
+    public ResponseEntity<CursoDTO> criar(@Valid @RequestBody CursoDTO dto) {
+        CursoDTO salvo = cursoService.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+    }
+
+Um cliente envia o JSON {"titulo": "", "cargaHoraria": 40}. O que acontece?
+A) O curso é salvo com título vazio, pois a validação só ocorre no banco de dados
+B) O Spring rejeita a requisição com 400 Bad Request e cursoService.criar não é chamado
+C) O curso é salvo e a resposta volta com 201, mas com o título trocado por null
+D) A resposta é 404 Not Found, pois o curso informado não foi encontrado
+E) O service salva o curso e, em seguida, a validação desfaz a gravação
+
+
+AOS-02
+Observe a classe:
+
+    @Controller
+    public class PaginaController {
+
+        @GetMapping("/sobre")
+        public String sobre() {
+            return "sobre";
+        }
+    }
+
+Em uma aplicação Spring MVC com um motor de templates configurado, o que o
+navegador recebe ao acessar /sobre?
+A) Um JSON contendo o texto "sobre"
+B) Um erro, pois métodos de Controller não podem devolver String
+C) Um redirecionamento para o endereço /sobre
+D) A página HTML gerada a partir do template chamado sobre
+E) Um arquivo de texto chamado sobre para download
+
+
+AOS-03
+O sistema de uma academia precisa de um endpoint para alterar somente o
+telefone de um aluno já cadastrado, mantendo todos os outros campos como
+estão. Qual mapeamento segue melhor o padrão REST?
+A) @PostMapping("/alunos/alterar-telefone")
+B) @GetMapping("/alunos/{id}/telefone/novo")
+C) @PatchMapping("/alunos/{id}")
+D) @DeleteMapping("/alunos/{id}/telefone")
+E) @PutMapping("/alunos")
+
+
+AOS-04
+Em uma API de biblioteca, um leitor pode ter no máximo 3 empréstimos ativos
+ao mesmo tempo. Considerando as camadas Controller, Service e Repository,
+qual é a forma mais adequada de implementar essa regra?
+A) No EmprestimoService: contar os empréstimos ativos do leitor pelo
+   repository e lançar uma exceção se o limite já foi atingido
+B) No EmprestimoController: contar os empréstimos no próprio método do
+   endpoint e devolver o erro dali mesmo
+C) No EmprestimoRepository: criar um método save() próprio que recusa o
+   quarto empréstimo
+D) No EmprestimoDTO: colocar @Max(3) no campo que guarda o id do leitor
+E) Na classe Emprestimo anotada com @Entity: colocar a regra dentro do
+   construtor da entidade
+
+
+AOS-05
+A entidade Usuario tem os campos nome, email, senha e administrador
+(boolean). Veja o endpoint de cadastro:
+
+    @PostMapping("/usuarios")
+    public Usuario cadastrar(@RequestBody Usuario usuario) {
+        return usuarioRepository.save(usuario);
+    }
+
+Qual é o principal risco desse código?
+A) @RequestBody não funciona com classes anotadas com @Entity
+B) O método save() não pode ser chamado em requisições POST
+C) Um JSON não pode conter valores booleanos, e a requisição sempre falha
+D) O retorno deveria ser void, pois POST nunca devolve corpo
+E) O cliente pode enviar "administrador": true no JSON e o valor é gravado;
+   um DTO de entrada só com os campos permitidos evitaria isso
+
+
+AOS-06
+Considere o trecho:
+
+    @PostMapping
+    public ResponseEntity<EventoDTO> criar(@RequestBody EventoDTO dto) {
+        EventoDTO criado = eventoService.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(criado);
+    }
+
+Quando o cadastro dá certo, o que o cliente recebe?
+A) Status 201, com o evento criado em JSON no corpo da resposta
+B) Status 200, sem corpo, pois o POST não devolve dados
+C) Status 204, com o evento criado em JSON no corpo da resposta
+D) Status 302, com redirecionamento para a lista de eventos
+E) Status 202, indicando que o evento ainda será criado mais tarde
+
+
+AOS-07
+Observe o método de um Service:
+
+    @Transactional
+    public void trocarPlano(Long id, String novoPlano) {
+        Assinatura assinatura = assinaturaRepository.findById(id)
+                .orElseThrow();
+        assinatura.setPlano(novoPlano);
+    }
+
+Não há chamada a save(). O que acontece com a alteração do plano?
+A) É perdida, pois sem save() nada chega ao banco em nenhuma situação
+B) Gera exceção, pois é proibido alterar entidades dentro de transações
+C) É gravada no banco ao final da transação, pois a entidade está
+   gerenciada e o JPA detecta a mudança
+D) Só é gravada se o método devolver a entidade alterada como retorno
+E) Faz a assinatura ser apagada, pois a entidade ficou inconsistente
+
+
+AOS-08
+Analise o Controller:
+
+    @RestController
+    @RequestMapping("/api/ingressos")
+    public class IngressoController {
+
+        private final IngressoRepository repository;
+
+        public IngressoController(IngressoRepository repository) {
+            this.repository = repository;
+        }
+
+        @PostMapping
+        public Ingresso comprar(@RequestBody Ingresso ingresso) {
+            if (ingresso.getIdade() < 12) {
+                ingresso.setPreco(ingresso.getPreco() * 0.5);
+            }
+            return repository.save(ingresso);
+        }
+    }
+
+Qual é a crítica arquitetural mais adequada?
+A) O construtor deveria ser trocado por um new IngressoRepository()
+B) O método deveria usar @GetMapping, pois devolve um objeto
+C) O Controller não pode receber objetos pelo corpo da requisição
+D) O repository deveria ser declarado como static para ser compartilhado
+E) A regra da meia-entrada está no Controller, que ainda acessa o repository
+   direto; essa lógica deveria ficar em um Service
+
+
+AOS-09
+Uma interface declara apenas a assinatura abaixo, sem nenhuma implementação:
+
+    public interface FilmeRepository extends JpaRepository<Filme, Long> {
+        List<Filme> findByGeneroAndAnoGreaterThan(String genero, int ano);
+    }
+
+Como esse método funciona?
+A) Não funciona: é obrigatório criar uma classe que implemente o SQL
+B) O Spring Data monta a consulta a partir do nome do método: filmes do
+   gênero informado com ano maior que o informado
+C) Devolve todos os filmes, e o filtro precisa ser feito depois no Service
+D) Devolve apenas o primeiro filme encontrado, por causa do prefixo find
+E) Só funciona se houver um Controller com uma rota de mesmo nome
+
+
+AOS-10
+Considere o método de um @Controller que usa templates:
+
+    @GetMapping("/turmas")
+    public String listar(Model model) {
+        model.addAttribute("turmas", turmaService.listarTodas());
+        return "turmas/lista";
+    }
+
+Qual é o papel de model.addAttribute nesse método?
+A) Gravar a lista de turmas no banco antes de exibir a página
+B) Converter a lista de turmas em JSON e enviá-la como resposta
+C) Definir a URL que o navegador deve acessar em seguida
+D) Disponibilizar a lista para o template, que a acessa pelo nome "turmas"
+E) Validar os dados de cada turma antes de exibi-los
+
+
+AOS-11
+Um cliente faz a chamada GET /api/filmes?genero=comedia&pagina=2.
+Qual anotação o método do Controller deve usar para receber o valor de
+genero?
+A) @RequestParam
+B) @PathVariable
+C) @RequestBody
+D) @ModelAttribute
+E) @Valid
+
+
+AOS-12
+Veja o endpoint:
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> remover(@PathVariable Long id) {
+        tarefaService.remover(id);
+        return ResponseEntity.noContent().build();
+    }
+
+Se a tarefa existe e é removida, qual é a resposta enviada ao cliente?
+A) Status 200, com a tarefa removida em JSON no corpo
+B) Status 201, indicando que um recurso foi criado
+C) Status 404, pois o recurso deixou de existir
+D) Status 400, pois DELETE não aceita variável na URL
+E) Status 204, sem corpo na resposta
+
+
+AOS-13
+Um projeto tem a classe TarefaMapper, com os métodos toDTO(Tarefa) e
+toEntity(TarefaDTO). Qual é a responsabilidade adequada dessa classe?
+A) Decidir se a tarefa pode ser concluída, conforme as regras do negócio
+B) Buscar no banco a tarefa correspondente a cada DTO recebido
+C) Definir as rotas HTTP ligadas às tarefas
+D) Apenas converter entre entidade e DTO, sem regra de negócio e sem
+   acesso ao banco
+E) Abrir e fechar as transações usadas pelo Service
+
+
+AOS-14
+No método abaixo, qual é a função da anotação @RequestBody?
+
+    @PutMapping("/{id}")
+    public LivroDTO atualizar(@PathVariable Long id,
+                              @RequestBody LivroDTO dto) {
+        return livroService.atualizar(id, dto);
+    }
+
+A) Ler o valor de id que vem na URL e convertê-lo para Long
+B) Converter o JSON enviado no corpo da requisição em um objeto LivroDTO
+C) Converter o retorno do método em JSON na resposta
+D) Indicar que o método só aceita requisições com corpo vazio
+E) Gravar o LivroDTO no banco antes de o método executar
+
+
+AOS-15
+Considere o método de um Service:
+
+    public ClienteDTO buscar(Long id) {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new ClienteNaoEncontradoException(id));
+        return ClienteMapper.toDTO(cliente);
+    }
+
+O que acontece quando não existe cliente com o id informado?
+A) O método devolve null, e quem chamou precisa conferir o resultado
+B) O método devolve um ClienteDTO com todos os campos vazios
+C) A exceção ClienteNaoEncontradoException é lançada e a linha do
+   toDTO não é executada
+D) Um novo cliente é criado automaticamente com o id informado
+E) O próprio findById lança NullPointerException antes do orElseThrow
