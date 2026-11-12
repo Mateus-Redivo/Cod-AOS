@@ -1,0 +1,15 @@
+01 B  @Valid dispara a validação do DTO antes de o método executar; campo inválido resulta em 400 e o Service nem é chamado.
+02 D  Com @Controller, a String devolvida é o nome de uma view/template.
+03 C  PATCH representa atualização parcial de um recurso identificado.
+04 A  Regra de negócio fica no Service, que consulta o Repository.
+05 E  Receber a entidade direto do cliente expõe campos internos; o DTO de entrada limita o que pode ser informado.
+06 A  HttpStatus.CREATED é 201, e body() envia o objeto em JSON.
+07 C  Dentro de @Transactional a entidade buscada está gerenciada; a mudança é detectada e gravada no commit.
+08 E  Controller deve tratar HTTP; regra de negócio e acesso a dados passam pelo Service.
+09 B  Spring Data cria a consulta a partir do nome do método.
+10 D  O Model leva dados do Controller para o template.
+11 A  Parâmetros após o ? são lidos com @RequestParam.
+12 E  noContent() gera 204, resposta de sucesso sem corpo.
+13 D  O Mapper só converte entre entidade e DTO.
+14 B  @RequestBody desserializa o JSON do corpo em objeto Java.
+15 C  findById devolve Optional; vazio, orElseThrow lança a exceção.
