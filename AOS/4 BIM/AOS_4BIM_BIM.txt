@@ -1,6 +1,6 @@
-==============================================================================
+================================================================
 ARQUITETURA ORIENTADA A SERVIÇOS (AOS)
-==============================================================================
+================================================================
 
 AOS-01
 Considere o DTO e o método de Controller abaixo:
@@ -88,8 +88,7 @@ A) @RequestBody não funciona com classes anotadas com @Entity
 B) O método save() não pode ser chamado em requisições POST
 C) Um JSON não pode conter valores booleanos, e a requisição sempre falha
 D) O retorno deveria ser void, pois POST nunca devolve corpo
-E) O cliente pode enviar "administrador": true no JSON e o valor é gravado;
-   um DTO de entrada só com os campos permitidos evitaria isso
+E) O cliente pode enviar "administrador": true no JSON e o valor é gravado;um DTO de entrada só com os campos permitidos evitaria isso
 
 
 AOS-06
@@ -122,8 +121,7 @@ Observe o método de um Service:
 Não há chamada a save(). O que acontece com a alteração do plano?
 A) É perdida, pois sem save() nada chega ao banco em nenhuma situação
 B) Gera exceção, pois é proibido alterar entidades dentro de transações
-C) É gravada no banco ao final da transação, pois a entidade está
-   gerenciada e o JPA detecta a mudança
+C) É gravada no banco ao final da transação, pois a entidade está gerenciada e o JPA detecta a mudança
 D) Só é gravada se o método devolver a entidade alterada como retorno
 E) Faz a assinatura ser apagada, pois a entidade ficou inconsistente
 
